@@ -1,15 +1,57 @@
 .App {
   text-align: center;
+  border: 1px greenyellow solid;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, auto) 1fr auto;
+  grid-template-areas: "logo   logo   logo"
+                       "header header header"
+                       "direct direct direct"
+                       "cards  cards  buttons"
+                       "footer footer footer";
+  gap: 8px;
 }
 
 .Display-Card {
   height: 150px;
 }
 
-/* .Card-Container {
+.logo {
+  grid-area: logo;
+  text-align: center;
+  height: 100px;
+  margin: auto;
+}
+
+.header {
+  grid-area: header;
+}
+
+.directions {
+  grid-area: direct;
+  text-align: center;
+}
+
+.Card-Container {
+  grid-area: cards;
+  height: 156px;
   display: flex;
   flex-direction: row;
-} */
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.buttons {
+  grid-area: buttons;
+  grid: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer {
+  grid-area: footer;
+}
 
 .card {
   --card-width: 100px;
