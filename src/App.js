@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import './App.css';
 import { v4 as uuidv4 } from 'uuid'; // then use uuidv4() to insert id
 import csLogo from "./assets/Card_Sharks_2019_logo.png";
+import blueBack from "./assets/cs_back_blue.png";
+import redBack from "./assets/cs_back_red.png";
+
+//-------------------------------------------------------------------------------
+// this uses https://deckofcardsapi.com/ for drawing cards for display
+//-------------------------------------------------------------------------------
 
 function App() {
   const [directions, setDirections]             = useState("Welcome To Card Sharks - Press Start to Play");
@@ -39,7 +45,7 @@ function App() {
       setDrawCards(secondJSON);
   
       console.log(firstJSON);
-      console.log(firstJSON);
+      console.log(secondJSON);
     }
 
     fetchDeck();
@@ -60,6 +66,7 @@ function App() {
     setShowBtns(true);
     setStartDisplay(true);
     setStartButton("Good Luck!");
+    setDirections("Is The Next Card Higher or Lower?")
 
     let nextKey = uuidv4();
     setCurrentKey(nextKey);
@@ -71,7 +78,7 @@ function App() {
 
     outputArray.push(
       <div className="card" key={nextKey}>
-        <img src={data.cards[roundNum].image} alt={data.cards[roundNum].code} className="Display-Card" />
+        <img src={data.cards[roundNum].image} alt={data.cards[roundNum].code} className="display-card" />
       </div>
     );
 
@@ -106,13 +113,14 @@ function App() {
     let AddToArray = [];
     AddToArray.push(
       <div className="card" key={NextKey}>
-        <img src={cards.cards[num].image} alt={cards.cards[num].code} className="Display-Card" />
+        <img src={cards.cards[num].image} alt={cards.cards[num].code} className="display-card" />
       </div>
     );
 
     setCurrentCardValue(NextCardValue);
     setDisplayCards(oldArray => [...oldArray, AddToArray]);
     setRoundNum(previousValue => previousValue + 1);
+  
     console.log(displayCards);
   }
 
@@ -124,15 +132,26 @@ function App() {
   return (
     <div className="App">
       <img className="logo" src={csLogo} alt="Card Sharks" />
-      <div className="header"><button disabled={startDisplay} onClick={showFirstCard}>{startButton}</button></div>
+      <div className="header"><button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button></div>
       <div className="Card-Container">
-        {displayCards}<br />
+        {displayCards}
+      </div>
+      <div className="flip-card">
+        <div className="flip-card-inner">
+          <div className="flip-card-front">
+            <img className="display-card" src={blueBack} alt="Avatar" />
+          </div>
+          <div className="flip-card-back">
+             <img className="display-card" src={redBack} alt="Avatar" />
+          </div>
+        </div>
       </div>
       <div className="directions">{directions}</div>
+      <div className="round-info">{roundNum > 0 && <span>Round {roundNum}</span>}</div>
       <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>{roundResult}<br />
-      <button id="higherBtn" disabled={highBtn} onClick={() => nextCard("higher")}>Higher</button><br /><br />
-      <button id="lowerBtn"  disabled={lowBtn} onClick={() => nextCard("lower")}>Lower</button><br />
-      <button id="swapBtn"   disabled={swapOut} onClick={swapOutCard}>Swap Out Card</button><br />
+      <button id="higherBtn" className="gold-button" disabled={highBtn} onClick={() => nextCard("higher")}>HIGHER</button><br />
+      <button id="lowerBtn"  className="gold-button" disabled={lowBtn} onClick={() => nextCard("lower")}>LOWER</button><br />
+      <button id="swapBtn"   className="gold-button" disabled={swapOut} onClick={swapOutCard}>SWAP CARD</button><br />
       Turns Left: {turnsRemain}</div>
     </div>
   );
