@@ -9,6 +9,22 @@ body {
   color: whitesmoke;
 }
 
+.header-logo {
+  text-align: center;
+}
+
+.nav-links {
+  width: 100%;
+  text-align: center;
+  color: black;
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-style {
+  color: black;
+}
+
 .result {
   height: 50px;
 }
@@ -17,7 +33,7 @@ body {
   text-align: center;
   margin: auto;
   height: 100vh;
-  min-width: 425px;
+  max-width: 600px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(6, min-content);
@@ -43,6 +59,8 @@ body {
 
 .header {
   grid-area: header;
+  display: flex;
+  justify-content: space-around;
 }
 
 .directions {
@@ -82,8 +100,8 @@ body {
 }
 
 /* use to stack cards on top of each other */
-.card {
-  /* --card-width: 100px;
+/*.card {
+  --card-width: 100px;
 
   margin-right: calc(25px - var(--card-width));
   float: left;
@@ -94,20 +112,16 @@ body {
   background: white;
   border-radius: 5px;
   padding: 0px;
-  margin: 0px; */
-}
+  margin: 0px;
+}*/
 
 .gold-button {
-  font-family: "Picadilly";
-  background-color: #FFD966;
-  font-size: 20px;
-  border-radius: 5px;
-  width: 14ch;
-  margin: 8px 0;
-  padding-top: 3px;
+  font-family: "Picadilly"; background-color: #FFD966; font-size: 20px;
+  border-radius: 5px; width: 16ch; margin: 8px 0; padding-top: 3px;
+  cursor: pointer; align-self: center; text-decoration: none;
 }
 
-/* ------ flip card animation --------------------------------------------------------- */
+/* ------ Flip Card Animation --------------------------------------------------------- */
 
 @keyframes reveal {
   from {}
@@ -144,4 +158,35 @@ body {
 
 .flip-card-back {
   transform: rotateY(180deg);
+}
+
+/* --------------------------------------------------------------------------------------------- */
+
+/* -------- Modal Display Properties ----------------------------------------------------------- */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; z-index: 40; width: 100vw; height: 100vh; background-color: #000;
+  opacity: .5;
+}
+
+.modal-wrapper {
+  position: fixed; top: 0; left: 0; z-index: 50; width: 100%; height: 100%;
+  overflow-x: hidden; overflow-y: auto; outline: 0;
+}
+
+.modal {
+  z-index: 100; background: white; color: black; position: relative; text-align: center;
+  margin: 1.75rem auto; border-radius: 10px; max-width: 500px; padding: 2rem;
+}
+
+.modal-header  {text-align: center;}
+
+.modal-buttons {display: flex; justify-content: space-between;}
+
+/* button {
+  font-size: .9rem; font-weight: 700; border: none;
+  border-radius: 3px; padding: .3rem 1rem; margin-left: .5rem;
+} */
+
+.button-default {
+  background: #247BA0; color: #fff;
 }
