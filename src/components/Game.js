@@ -15,18 +15,23 @@ import wrong from "../assets/wrong.png";
 //-------------------------------------------------------------------------------
 
 function Game() {
+  const playerName = sessionStorage.getItem("currentPlayerName");
+  let   roundLimit = parseInt(sessionStorage.getItem("roundLimit"));
+
   let placeholder = [];
   placeholder.push(
-    <div className="card" key="blueCard">
       <img src={blueBack} alt="Card Shards" className="display-card" />
-    </div>
   );
 
   const {isShowing, toggle} = useModal();
 
   const [directions, setDirections]             = useState("Press Start to Play");
   const [roundNum, setRoundNum]                 = useState(0);
-  const [roundLimit, setRoundLimit]             = useState(6)
+
+
+
+
+
 
   const [currentCardValue, setCurrentCardValue] = useState()
   const [nextCards, setNextCards]               = useState();
@@ -36,6 +41,8 @@ function Game() {
   const [roundResult, setRoundResult]           = useState("Good Luck!");
   const [rightWrong, setRightWrong]             = useState();
   const [resultWL, setResultWL]                 = useState();
+  const [resultHeader, setResultHeader]         = useState("Congratulations " + playerName);
+  const [resultTag, setResultTag]               = useState("You made it to the Money Round");
   
   const [turnsRemain, setTurnsRemain]           = useState(3);
   const [displayCards, setDisplayCards]         = useState([]);
@@ -45,8 +52,7 @@ function Game() {
   const [startDisplay, setStartDisplay]         = useState(false);
   const [showResults, setShowResults]           = useState(false);
   const [showBtns, setShowBtns]                 = useState(false);
-  const [highBtnDis, setHighBtnDis]             = useState(false);
-  const [lowBtnDis, setLowBtnDis]               = useState(false);
+  const [highLowDis, setHighLowDis]             = useState(false);
   const [swapOutDis, setSwapOutDis]             = useState(false);
   const [swapOutUsed, setSwapOutUsed]           = useState(false);
   
@@ -99,9 +105,7 @@ function Game() {
     let outputArray = [];
 
     outputArray.push(
-      <div className="card" key={nextKey}>
-        <img src={data.cards[roundNum].image} alt={data.cards[roundNum].code} className="display-card" />
-      </div>
+        <img key={nextKey} src={data.cards[roundNum].image} alt={data.cards[roundNum].code} className="display-card" />
     );
 
     setDisplayCards(outputArray);
@@ -114,6 +118,7 @@ function Game() {
     let cards;
     let num;
     let hiLow = option;
+    let rightOrWrong;
 
     let nextCardValue;
     let gameOver = false;
@@ -132,39 +137,43 @@ function Game() {
     if ((hiLow === "higher" && nextCardValue > currentCardValue) ||
       (hiLow === "lower" && nextCardValue < currentCardValue)) {
         setRoundResult("Correct");
-        setRightWrong(right)
+        setRightWrong(right);
+        rightOrWrong = true;
         setCurrentCardValue(nextCardValue);
         setResultWL(true);
       } else {
         setRoundResult("Incorrect");
         setRightWrong(wrong)
+        rightOrWrong = false;
         if (turnsRemain === 1) {
           gameOver = true;
+          setResultHeader(`Sorry ${playerName}`);
+          setResultTag("Better luck next time");    
         }
         setTurnsRemain(previousValue => previousValue - 1);
         setResultWL(false);
       }  
 
-    console.log(`${hiLow} - Base Card: ${currentCardValue} - Next Card: ${nextCardValue}`);
+    console.log(`${hiLow} - Base Card: ${currentCardValue} - Next Card: ${nextCardValue} ${rightOrWrong}`);
+
+    let cardAnime = "reveal 4s forward";
+    document.querySelector("#flip-card-inner").style.animation = cardAnime;
+    document.querySelector("#flip-card-back").style.animation  = cardAnime;
 
     setShowResults(true);
-    let nextKey = uuidv4();
 
     let addToArray = [];
     addToArray.push(
-      <div className="card" key={nextKey}>
         <img src={cards.cards[num].image} alt={cards.cards[num].code} className="display-card" />
-      </div>
     );
 
     setRevealCard(addToArray);
-    setHighBtnDis(true);
-    setLowBtnDis(true);
+    setHighLowDis(true);
     if (!swapOutUsed) {
       setSwapOutDis(true);
     }
 
-    if ((roundNum === roundLimit || gameOver) && turnsRemain < 1) {
+    if (((roundNum === roundLimit) && rightOrWrong) || gameOver) {
       console.log("Round Over");
       toggle();
       setShowResults(false);
@@ -174,15 +183,14 @@ function Game() {
 
   // -------- sets up cards & buttons for next round --------------------------------------------- \\
   function setNextRound() {
-    if (rightWrong !== wrong) {
+    if (rightWrong !== wrong && turnsRemain !== 0) {
       setDisplayCards(revealCard);
       setRoundNum(previousValue => previousValue + 1);
     }
     setRevealCard(placeholder);
     setShowResults(false);
 
-    setHighBtnDis(false);
-    setLowBtnDis(false);
+    setHighLowDis(false);
     if (!swapOutUsed) {
       setSwapOutDis(false)
     }
@@ -217,11 +225,10 @@ function Game() {
 
   return (
     <>
-      <div className="header">
-        <div style={{ display: showResults ? "none" : "block" }}>
-          <button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button>
-        </div>
-        <div style={{ display: showResults ? "block" : "none" }}>
+      <div className="header" style={{ display: showResults ? "none" : "block" }}>
+        <button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button>
+      </div>
+      <div className="header" style={{ display: showResults ? "block" : "none" }}>
         <table className="rightwrong">
           <tbody>
             <tr>
@@ -231,30 +238,45 @@ function Game() {
             </tr>
           </tbody>
         </table>
-        </div>
       </div>
       <div className="Card-Container">
-        {displayCards}
+        <div className="card" key="blueCard">
+          {displayCards}
+        </div>
       </div>
-      <div className="flip-card">
-        {revealCard}
+      <div class="flip-card">
+        <div class="flip-card-inner" id="flip-card-inner">
+          <div class="flip-card-front">
+            <img className="display-card" src={blueBack} alt="Card Sharks" />
+          </div>
+          <div class="flip-card-back" id="flip-card-back">
+            {revealCard}
+          </div>
+        </div>
       </div>
+      {/* <div className="flip-card">
+        <div className="card" key="reveal-card">
+          {revealCard}
+        </div>
+      </div> */}
       <div className="directions">{directions}</div>
-      <div className="round-info">{roundNum > 0 ? <h2>Round {roundNum}</h2> : <h2>Welcome To Card Sharks</h2>}</div>
+      <div className="round-info">{roundNum > 0 ? <h2>Round {roundNum}</h2> : <h2>Hello {playerName} and Welcome To Card Sharks</h2>}</div>
       <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>
-        <button id="higherBtn" className="gold-button" disabled={highBtnDis} onClick={() => nextCard("higher")}>Higher</button><br />
-        <button id="lowerBtn"  className="gold-button" disabled={lowBtnDis}  onClick={() => nextCard("lower")}>Lower</button><br />
+        <button id="higherBtn" className="gold-button" disabled={highLowDis} onClick={() => nextCard("higher")}>Higher</button><br />
+        <button id="lowerBtn"  className="gold-button" disabled={highLowDis} onClick={() => nextCard("lower")}>Lower</button><br />
         <button id="swapBtn"   className="gold-button" disabled={swapOutDis} onClick={swapOutCard}>Swap Card</button><br />
         Wrong Guesses Remain: {turnsRemain}</div>
       <div className="tips">
         <p>If the cards have the same value, you will lose a guess</p>
         <p>You can change your base card <strong>ONLY ONCE</strong></p>
+        <p><strong>2</strong> is the lowest card - <strong>ACE</strong> is the highest card</p>
       </div>
-      <div className="footer" style={{ display: showResults ? "block" : "none" }}></div>
       <Modal
         isShowing={isShowing}
         hide={toggle}
         result={resultWL}
+        header={resultHeader}
+        tag={resultTag}
       />
     </>
   );

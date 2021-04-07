@@ -8,28 +8,30 @@ import { v4 as uuidv4 } from 'uuid'; // then use uuidv4() to insert id
 import goldBack from "../assets/cs_back_gold.png";
 import right from "../assets/right.png";
 import wrong from "../assets/wrong.png";
+import push from "../assets/push.png";
 
 //-------------------------------------------------------------------------------
 // this uses https://deckofcardsapi.com/ for drawing cards for display
 //-------------------------------------------------------------------------------
 
 function Money() {
+  const playerName = sessionStorage.getItem("currentPlayerName");
+  let   roundLimit = parseInt(sessionStorage.getItem("roundLimit"));
+
   let placeholder = [];
   placeholder.push(
-    <div className="card" key="Gold Card">
-      <img src={goldBack} alt="Card Shards" className="display-card" />
-    </div>
+      <img key="gold-card" src={goldBack} alt="Card Shards" className="display-card" />
   );
 
   const {isShowing, toggle} = useModal();
 
   const [directions, setDirections]             = useState("Press Start to Play");
   const [roundNum, setRoundNum]                 = useState(0);
-  const [roundLimit, setRoundLimit]             = useState(6);
+
   const [bankTotal, setBankTotal]               = useState(10000);
   const [betMax, setBetMax]                     = useState(10000);
   const [roundMax, setRoundMax]                 = useState(10000);
-  const [roundMin, setRoundmin]                 = useState(1000);
+  const [roundMin, setRoundMin]                 = useState(1000);
 
   const [currentCardValue, setCurrentCardValue] = useState();
   const [nextCards, setNextCards]               = useState();
@@ -39,8 +41,10 @@ function Money() {
   const [roundResult, setRoundResult]           = useState("Good Luck!");
   const [rightWrong, setRightWrong]             = useState();
   const [resultWL, setResultWL]                 = useState();
-  
-  const [turnsRemain, setTurnsRemain]           = useState(3);
+  const [resultHeader, setResultHeader]         = useState("Congratulations " + playerName);
+  const [resultTag, setResultTag]               = useState();
+
+
   const [displayCards, setDisplayCards]         = useState([]);
   const [revealCard, setRevealCard]             = useState(placeholder);
   const [startButton, setStartButton]           = useState("Start");
@@ -55,7 +59,7 @@ function Money() {
   const [wagerDis, setWagerDis]                 = useState(true);
   
   useEffect(() => {
-    let startPileNum = roundLimit + 1;
+    let startPileNum = 7;
     const fetchDeck = async () => {
       let deck = await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1");
       let deckJSON = await deck.json();
@@ -65,7 +69,7 @@ function Money() {
   
       setNextCards(firstJSON);
 
-      let second = await fetch(`https://deckofcardsapi.com/api/deck/${deckJSON.deck_id}/draw/?count=4`)
+      let second = await fetch(`https://deckofcardsapi.com/api/deck/${deckJSON.deck_id}/draw/?count=1`)
       let secondJSON = await second.json();
 
       console.log(firstJSON);
@@ -104,9 +108,7 @@ function Money() {
     let outputArray = [];
 
     outputArray.push(
-      <div className="card" key={nextKey}>
-        <img src={data.cards[roundNum].image} alt={data.cards[roundNum].code} className="display-card" />
-      </div>
+        <img key={nextKey} src={data.cards[roundNum].image} alt={data.cards[roundNum].code} className="display-card" />
     );
 
     setDisplayCards(outputArray);
@@ -129,40 +131,42 @@ function Money() {
     if (rightWrong === wrong) {
       cards = drawCards;
       num = drawPileNumber
-      nextCardValue = parseInt(cardValue(cards.cards[num].value));
       setDrawPileNumber(previousValue => previousValue + 1);
     } else {
       cards = nextCards;
       num = roundNum;
-      nextCardValue = parseInt(cardValue(cards.cards[num].value));
     }
+  
+    nextCardValue = parseInt(cardValue(cards.cards[num].value));
 
-    if ((hiLow === "higher" && nextCardValue > currentCardValue) ||
+    let newBank;
+    if (nextCardValue === currentCardValue) {
+      setRoundResult("Push");
+      setRightWrong(push)
+    } else if ((hiLow === "higher" && nextCardValue > currentCardValue) ||
       (hiLow === "lower" && nextCardValue < currentCardValue)) {
         setRoundResult("Correct");
         setRightWrong(right)
-        setCurrentCardValue(nextCardValue);
         setResultWL(true);
-        setWagerDis(true);
-        let newBank = bankTotal + wagerAmount;
+        newBank = bankTotal + wagerAmount;
         setBankTotal(newBank);
         setBetMax(newBank);
         setRoundMax(newBank);
-
       } else {
         setRoundResult("Incorrect");
         setRightWrong(wrong)
-        if (turnsRemain === 1) {
-          gameOver = true;
-        }
-        setTurnsRemain(previousValue => previousValue - 1);
         setResultWL(false);
-        setWagerDis(true);
-        let newBank = bankTotal - wagerAmount;
+        newBank = bankTotal - wagerAmount;
         setBankTotal(newBank);
         setBetMax(newBank);
         setRoundMax(newBank);
       }  
+
+    if (roundNum + 1 === roundLimit) {
+      setRoundMin(newBank / 2);
+    }
+    setWagerDis(true);
+    setCurrentCardValue(nextCardValue);
 
     console.log(`${hiLow} - Base Card: ${currentCardValue} - Next Card: ${nextCardValue}`);
 
@@ -171,9 +175,7 @@ function Money() {
 
     let addToArray = [];
     addToArray.push(
-      <div className="card" key={nextKey}>
-        <img src={cards.cards[num].image} alt={cards.cards[num].code} className="display-card" />
-      </div>
+        <img key={nextKey} src={cards.cards[num].image} alt={cards.cards[num].code} className="display-card" />
     );
 
     setRevealCard(addToArray);
@@ -183,7 +185,7 @@ function Money() {
       setSwapOutDis(true)
     }
 
-    if (roundNum === roundLimit || gameOver) {
+    if (roundNum === roundLimit) {
       console.log("Round Over");
       toggle();
       setShowResults(false)
@@ -193,10 +195,8 @@ function Money() {
 
   // -------- sets up cards & buttons for next round --------------------------------------------- \\
   function setNextRound() {
-    if (rightWrong !== wrong) {
-      setDisplayCards(revealCard);
-      setRoundNum(previousValue => previousValue + 1);
-    }
+    setDisplayCards(revealCard);
+    setRoundNum(previousValue => previousValue + 1);
     setRevealCard(placeholder);
     setShowResults(false);
 
@@ -220,9 +220,7 @@ function Money() {
     let swapKey = uuidv4();
 
     replaceBaseCard.push(
-      <div className="card" key={swapKey}>
-        <img src={swapCards.cards[pileNum].image} alt={swapCards.cards[pileNum].code} className="display-card" />
-      </div>
+        <img key={swapKey} src={swapCards.cards[pileNum].image} alt={swapCards.cards[pileNum].code} className="display-card" />
     );
     
     setDrawPileNumber(previousValue => previousValue + 1);
@@ -235,49 +233,58 @@ function Money() {
   }
   // --------------------------------------------------------------------------------------------- \\
 
+  console.log(roundLimit, roundNum);
+
+
   return (
     <>
-        <div className="header" style={{ display: showResults ? "none" : "block" }}>
-          <button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button>
-        </div>
-        <div className="header" style={{ display: showResults ? "block" : "none" }}>
-          <table className="rightwrong">
-            <tbody>
-              <tr>
-                <td><img className="result" src={rightWrong} alt="Result" /></td>
-                <td><button id="continue" className="gold-button" onClick={setNextRound}>Continue</button></td>
-                <td>{roundResult}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div className="Card-Container">
+      <div className="header" style={{ display: showResults ? "none" : "block" }}>
+        <button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button>
+      </div>
+      <div className="header" style={{ display: showResults ? "block" : "none" }}>
+        <table className="rightwrong">
+          <tbody>
+            <tr>
+              <td><img className="result" src={rightWrong} alt="Result" /></td>
+              <td><button id="continue" className="gold-button" onClick={setNextRound}>Continue</button></td>
+              <td>{roundResult}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="Card-Container">
+        <div className="card">
           {displayCards}
         </div>
-        <div className="flip-card">
+      </div>
+      <div className="flip-card">
+        <div className="card">
           {revealCard}
         </div>
-        <div className="directions">{directions}</div>
-        <div className="round-info">{roundNum > 0 ? <span className="header-message">Round {roundNum}</span> : <span className="header-message">Welcome To The MONEY Round</span>}</div>
-        <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>
-          <button id="higherBtn" className="gold-button" disabled={highBtnDis} onClick={() => nextCard("higher")}>Higher</button><br />
-          <button id="lowerBtn"  className="gold-button" disabled={lowBtnDis}  onClick={() => nextCard("lower")}>Lower</button><br />
-          <button id="swapBtn"   className="gold-button" disabled={swapOutDis} onClick={swapOutCard}>Swap Card</button><br />
-          Wrong Guesses Remain: {turnsRemain}</div>
-        <div className="tips">
-          <span className="header-message">Bank Total: ${bankTotal.toLocaleString()}</span><br />
-          <input disabled={wagerDis} id="wager" type="number" min={roundMin} max={roundMax} step="500" pattern="[0-9]*" value={betMax} onChange={e => setBetMax(parseInt(e.target.value))}/><br />
-          <span className="header-message">Minimum Bet is ${roundMin.toLocaleString()}</span>
-          <p>If the cards have the same value, it is considered a push,<br /> 
-          you will not win or lose any money</p>
-          <p>You can swap out your base card <strong>ONLY ONCE</strong></p>
-        </div>
-        <Modal
-          isShowing={isShowing}
-          hide={toggle}
-          result={resultWL}
-        />
-      </>
+      </div>
+      <div className="directions">{directions}</div>
+      <div className="round-info">{roundNum > 0 ? <span className="header-message">Round {roundNum} - Place Wager Below</span> : <span className="header-message">Welcome To The MONEY Round</span>}</div>
+      <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>
+        <button id="higherBtn" className="gold-button" disabled={highBtnDis} onClick={() => nextCard("higher")}>Higher</button><br />
+        <button id="lowerBtn"  className="gold-button" disabled={lowBtnDis}  onClick={() => nextCard("lower")}>Lower</button><br />
+        <button id="swapBtn"   className="gold-button" disabled={swapOutDis} onClick={swapOutCard}>Swap Card</button><br />
+      </div>
+      <div className="tips">
+        <span className="header-message">Bank Total: ${bankTotal.toLocaleString()}</span><br />
+        <input disabled={wagerDis} id="wager" type="number" min={roundMin} max={roundMax} step="500" pattern="[0-9]*" value={betMax} onChange={e => setBetMax(parseInt(e.target.value))}/><br />
+        <span className="header-message">Minimum Bet is ${roundMin.toLocaleString()}</span>
+        <p>If the cards have the same value, it is considered a push,<br /> 
+        you will not win or lose any money</p>
+        <p>You can swap out your base card <strong>ONLY ONCE</strong></p>
+      </div>
+      <Modal
+        isShowing={isShowing}
+        hide={toggle}
+        result={resultWL}
+        header={resultHeader}
+        tag={resultTag}
+      />
+    </>
   );
 }
 
