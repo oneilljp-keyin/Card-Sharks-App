@@ -3,11 +3,26 @@
   src: local('Picadilly'), url(./assets/Picadilly.ttf) format('truetype');
 }
 
+html {
+  font-size: 16px;
+}
+
 body {
   background-color: #a4508b;
   background-image: linear-gradient(326deg, #a4508b 0%, #5f0a87 74%);
   color: whitesmoke;
 }
+
+table.rightwrong {
+  border: none;
+  padding: 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table.rightwrong tbody tr td:nth-child(1) {text-align: right;  width: 33%}
+table.rightwrong tbody tr td:nth-child(2) {text-align: center; width: 34%}
+table.rightwrong tbody tr td:nth-child(3) {text-align: left;   width: 33%}
 
 .header-logo {
   text-align: center;
@@ -26,7 +41,13 @@ body {
 }
 
 .result {
-  height: 50px;
+  height: 40px;
+}
+
+input {
+  width: 10ch;
+  text-align: center;
+  font-size: 2rem;
 }
 
 .App {
@@ -42,6 +63,7 @@ body {
                        "round  round  round"
                        "direct direct direct"
                        "cards  next   buttons"
+                       "tips   tips   tips"
                        "footer footer footer";
   gap: 8px;
 }
@@ -61,6 +83,11 @@ body {
   grid-area: header;
   display: flex;
   justify-content: space-around;
+}
+
+.header-message {
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .directions {
@@ -87,6 +114,12 @@ body {
   grid-area: buttons;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.tips {
+  grid-area: tips;
   justify-content: center;
   align-items: center;
 }
@@ -118,7 +151,7 @@ body {
 .gold-button {
   font-family: "Picadilly"; background-color: #FFD966; font-size: 20px;
   border-radius: 5px; width: 16ch; margin: 8px 0; padding-top: 3px;
-  cursor: pointer; align-self: center; text-decoration: none;
+  cursor: pointer; align-self: center; text-decoration: none; border: 1px solid #000000;
 }
 
 /* ------ Flip Card Animation --------------------------------------------------------- */
@@ -139,27 +172,22 @@ body {
   /* animation-name: reveal;
   animation-duration: 4s; */
   position: relative; width: 100%; height: 100%; text-align: center;
-  /* transition: transform 1.0s; */
+  transition: transform 1.0s;
   transform-style: preserve-3d; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 }
 
-/* .flip-card:hover .flip-card-inner {
+.flip-card:hover .flip-card-inner {
   transform: rotateY(180deg);
-} */
+}
 
 .flip-card-front, .flip-card-back {
   position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
-/* .flip-card-front {
-  background-color: #bbb; color: black;
-} */
-
 .flip-card-back {
   transform: rotateY(180deg);
 }
-
 /* --------------------------------------------------------------------------------------------- */
 
 /* -------- Modal Display Properties ----------------------------------------------------------- */
@@ -174,19 +202,11 @@ body {
 }
 
 .modal {
-  z-index: 100; background: white; color: black; position: relative; text-align: center;
+  z-index: 100; background: #FFFFFFCC; color: black; position: relative; text-align: center;
   margin: 1.75rem auto; border-radius: 10px; max-width: 500px; padding: 2rem;
+  backdrop-filter: blur(50px); 
 }
 
 .modal-header  {text-align: center;}
 
-.modal-buttons {display: flex; justify-content: space-between;}
-
-/* button {
-  font-size: .9rem; font-weight: 700; border: none;
-  border-radius: 3px; padding: .3rem 1rem; margin-left: .5rem;
-} */
-
-.button-default {
-  background: #247BA0; color: #fff;
-}
+.modal-buttons {display: flex; justify-content: center; width: 100%;}

@@ -14,7 +14,7 @@ import wrong from "../assets/wrong.png";
 // this uses https://deckofcardsapi.com/ for drawing cards for display
 //-------------------------------------------------------------------------------
 
-function App() {
+function Game() {
   let placeholder = [];
   placeholder.push(
     <div className="card" key="blueCard">
@@ -26,7 +26,7 @@ function App() {
 
   const [directions, setDirections]             = useState("Press Start to Play");
   const [roundNum, setRoundNum]                 = useState(0);
-  const [roundLimit, setRoundLimit]             = useState(7)
+  const [roundLimit, setRoundLimit]             = useState(6)
 
   const [currentCardValue, setCurrentCardValue] = useState()
   const [nextCards, setNextCards]               = useState();
@@ -49,7 +49,6 @@ function App() {
   const [lowBtnDis, setLowBtnDis]               = useState(false);
   const [swapOutDis, setSwapOutDis]             = useState(false);
   const [swapOutUsed, setSwapOutUsed]           = useState(false);
-  const [gameOver, setGameOver]                 = useState(false);
   
   useEffect(() => {
     let startPileNum = roundLimit + 1;
@@ -117,6 +116,7 @@ function App() {
     let hiLow = option;
 
     let nextCardValue;
+    let gameOver = false;
 
     if (rightWrong === wrong) {
       cards = drawCards;
@@ -138,11 +138,10 @@ function App() {
       } else {
         setRoundResult("Incorrect");
         setRightWrong(wrong)
-        if (turnsRemain === 0) {
-          setGameOver(true)
-        } else {
-          setTurnsRemain(previousValue => previousValue - 1);
+        if (turnsRemain === 1) {
+          gameOver = true;
         }
+        setTurnsRemain(previousValue => previousValue - 1);
         setResultWL(false);
       }  
 
@@ -162,13 +161,13 @@ function App() {
     setHighBtnDis(true);
     setLowBtnDis(true);
     if (!swapOutUsed) {
-      setSwapOutDis(true)
+      setSwapOutDis(true);
     }
 
-    if (roundNum === roundLimit || gameOver) {
+    if ((roundNum === roundLimit || gameOver) && turnsRemain < 1) {
       console.log("Round Over");
       toggle();
-      setShowResults(false)
+      setShowResults(false);
     }
   }
   // --------------------------------------------------------------------------------------------- \\
@@ -218,32 +217,47 @@ function App() {
 
   return (
     <>
-        <div className="header"><button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button></div>
-        <div className="Card-Container">
-          {displayCards}
+      <div className="header">
+        <div style={{ display: showResults ? "none" : "block" }}>
+          <button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button>
         </div>
-        <div className="flip-card">
-          {revealCard}
+        <div style={{ display: showResults ? "block" : "none" }}>
+        <table className="rightwrong">
+          <tbody>
+            <tr>
+              <td><img className="result" src={rightWrong} alt="Result" /></td>
+              <td><button id="continue" className="gold-button" onClick={setNextRound}>Continue</button></td>
+              <td>{roundResult}</td>
+            </tr>
+          </tbody>
+        </table>
         </div>
-        <div className="directions">{directions}</div>
-        <div className="round-info">{roundNum > 0 ? <span>Round {roundNum}</span> : <span>Welcome To Card Sharks</span>}</div>
-        <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>
-          <button id="higherBtn" className="gold-button" disabled={highBtnDis} onClick={() => nextCard("higher")}>Higher</button><br />
-          <button id="lowerBtn"  className="gold-button" disabled={lowBtnDis}  onClick={() => nextCard("lower")}>Lower</button><br />
-          <button id="swapBtn"   className="gold-button" disabled={swapOutDis} onClick={swapOutCard}>Swap Card</button><br />
-          Wrong Guesses Remain: {turnsRemain}</div>
-        <div className="footer" style={{ display: showResults ? "block" : "none" }}>
-          <img className="result" src={rightWrong} alt="Result" />
-          <div>{roundResult}</div>
-          <button id="continue"  className="gold-button" onClick={setNextRound}>Continue</button> 
-        </div>
-        <Modal
-          isShowing={isShowing}
-          hide={toggle}
-          result={resultWL}
-        />
-      </>
+      </div>
+      <div className="Card-Container">
+        {displayCards}
+      </div>
+      <div className="flip-card">
+        {revealCard}
+      </div>
+      <div className="directions">{directions}</div>
+      <div className="round-info">{roundNum > 0 ? <h2>Round {roundNum}</h2> : <h2>Welcome To Card Sharks</h2>}</div>
+      <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>
+        <button id="higherBtn" className="gold-button" disabled={highBtnDis} onClick={() => nextCard("higher")}>Higher</button><br />
+        <button id="lowerBtn"  className="gold-button" disabled={lowBtnDis}  onClick={() => nextCard("lower")}>Lower</button><br />
+        <button id="swapBtn"   className="gold-button" disabled={swapOutDis} onClick={swapOutCard}>Swap Card</button><br />
+        Wrong Guesses Remain: {turnsRemain}</div>
+      <div className="tips">
+        <p>If the cards have the same value, you will lose a guess</p>
+        <p>You can change your base card <strong>ONLY ONCE</strong></p>
+      </div>
+      <div className="footer" style={{ display: showResults ? "block" : "none" }}></div>
+      <Modal
+        isShowing={isShowing}
+        hide={toggle}
+        result={resultWL}
+      />
+    </>
   );
 }
 
-export default App;
+export default Game;
