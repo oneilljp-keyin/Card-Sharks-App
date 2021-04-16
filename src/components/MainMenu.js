@@ -1,14 +1,21 @@
 import React from 'react'
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import "../App.css";
 
 function MainMenu() {
-  sessionStorage.setItem("currentPlayerName", "John");
-  sessionStorage.setItem("roundLimit", 6);
+  function gameStart() {
+    let playerName = document.getElementById("playerName").value;
+
+    sessionStorage.setItem("currentPlayerName", playerName);
+    sessionStorage.setItem("roundLimit", 6);
+
+    window.location.href = "/game";
+  }
 
   return (
-    <div className="header">
-      <Link className="gold-button" to="/Game">Game</Link>
+    <div class="start-page">
+      <input id="playerName" class="name-input" placeholder="Enter Your Name" />
+      <button className="gold-button" onClick={gameStart}>Start Game</button>
       <Link className="gold-button" to="/highscores">High Scores</Link>
     </div>
   )

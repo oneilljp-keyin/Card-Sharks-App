@@ -156,9 +156,11 @@ function Game() {
 
     console.log(`${hiLow} - Base Card: ${currentCardValue} - Next Card: ${nextCardValue} ${rightOrWrong}`);
 
-    let cardAnime = "reveal 4s forward";
+    let cardAnime = "reveal 3s ease 0s 1 normal forwards running";
+    let resultReveal = "result 3s ease 0s 1 normal forwards running";
     document.querySelector("#flip-card-inner").style.animation = cardAnime;
     document.querySelector("#flip-card-back").style.animation  = cardAnime;
+    document.querySelector("#right-wrong").style.animation  = resultReveal;
 
     setShowResults(true);
 
@@ -194,6 +196,10 @@ function Game() {
     if (!swapOutUsed) {
       setSwapOutDis(false)
     }
+
+    document.querySelector("#flip-card-inner").style.removeProperty("animation");
+    document.querySelector("#flip-card-back").style.removeProperty("animation");
+    document.querySelector("#right-wrong").style.removeProperty("animation");
   }
   // ------------------------------------------------------------------------------------------- \\
 
@@ -229,7 +235,7 @@ function Game() {
         <button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button>
       </div>
       <div className="header" style={{ display: showResults ? "block" : "none" }}>
-        <table className="rightwrong">
+        <table className="rightwrong" id="right-wrong">
           <tbody>
             <tr>
               <td><img className="result" src={rightWrong} alt="Result" /></td>
@@ -254,11 +260,6 @@ function Game() {
           </div>
         </div>
       </div>
-      {/* <div className="flip-card">
-        <div className="card" key="reveal-card">
-          {revealCard}
-        </div>
-      </div> */}
       <div className="directions">{directions}</div>
       <div className="round-info">{roundNum > 0 ? <h2>Round {roundNum}</h2> : <h2>Hello {playerName} and Welcome To Card Sharks</h2>}</div>
       <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>

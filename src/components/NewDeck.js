@@ -1,5 +1,5 @@
 import React from 'react';
-import "./App.css";
+import "./NewDeck.css";
 
 export default function NewDeck() {
     let suits = ["S", "D", "C", "H"];
@@ -42,24 +42,30 @@ export default function NewDeck() {
             var card = document.createElement("div");
             var icon = '';
             if (deck[i].Suit === 'H')
-            icon='?';
+            icon = '&hearts;';
             else if (deck[i].Suit === 'S')
-            icon = '?';
+            icon = '&spades;';
             else if (deck[i].Suit === 'D')
-            icon = '?';
+            icon = '&diams;';
             else
-            icon = '?';
+            icon = '&clubs;';
 
             card.innerHTML = deck[i].Value + '' + icon;
             card.className = 'card';
 
-            returnedDeck[] = card;
+            document.getElementById("deck").appendChild(card);
         }
     }
 
+    let deck1 = getDeck();
+    console.log(deck1);
+    shuffle(deck1);
+    renderDeck(deck1);
+
     return (
-        <div className="App">
-            
+        <div className="App deck">
+          <h1>This is a New Deck Test</h1>
+          <div id="deck"></div>
         </div>
     )
 }

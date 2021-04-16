@@ -24,8 +24,14 @@ table.rightwrong tbody tr td:nth-child(1) {text-align: right;  width: 33%}
 table.rightwrong tbody tr td:nth-child(2) {text-align: center; width: 34%}
 table.rightwrong tbody tr td:nth-child(3) {text-align: left;   width: 33%}
 
-.header-logo {
-  text-align: center;
+.header-logo {text-align: center;}
+
+.start-page {
+  grid-area: header;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .nav-links {
@@ -48,6 +54,12 @@ table.rightwrong tbody tr td:nth-child(3) {text-align: left;   width: 33%}
 
 input {
   width: 10ch;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.name-input {
+  width: 20ch;
   text-align: center;
   font-size: 2rem;
 }
@@ -154,12 +166,19 @@ input {
 
 .gold-button {
   font-family: "Picadilly"; background-color: #FFD966; font-size: 20px;
-  border-radius: 5px; width: 16ch; margin: 8px 0; padding-top: 3px;
+  border-radius: 5px; width: 16ch; margin: 8px 0; padding-top: 3px; color: black;
   cursor: pointer; align-self: center; text-decoration: none; border: 1px solid #000000;
 }
 
-/* ------ Flip Card Animation --------------------------------------------------------- */
+/* ------ Results Revealtion --------------------------------------------------------- */
+@keyframes result {
+  0% {opacity: 0;}
+  99% {opacity: 0;}
+  100% {opacity: 1;}
+}
+/* ------------------------------------------------------------------------------------ */
 
+/* ------ Flip Card Animation --------------------------------------------------------- */
 @keyframes reveal {
   from {}
   to {transform: rotateY(180deg);}
@@ -174,7 +193,8 @@ input {
 
 .flip-card-inner {
   /* animation-name: reveal;
-  animation: reveal 4s forwards;
+  animation: reveal 4s ease 0s 1 normal forwards running;
+  colorchange 1s ease 0s 1 normal forwards
   animation-duration: 4s; */
   position: relative; width: 100%; height: 100%; text-align: center;
   transition: transform 1.0s;

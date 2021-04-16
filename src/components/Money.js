@@ -118,24 +118,14 @@ function Money() {
 
   // -------- compares the checks and see if player is correct ----------------------------------- \\
   function nextCard(option) {
-    let cards;
-    let num;
+    let cards = nextCards;
+    let num = roundNum;
     let hiLow = option;
 
     let wagerAmount = parseInt(document.getElementById("wager").value);
     console.log(wagerAmount);
 
     let nextCardValue;
-    let gameOver = false;
-
-    if (rightWrong === wrong) {
-      cards = drawCards;
-      num = drawPileNumber
-      setDrawPileNumber(previousValue => previousValue + 1);
-    } else {
-      cards = nextCards;
-      num = roundNum;
-    }
   
     nextCardValue = parseInt(cardValue(cards.cards[num].value));
 
@@ -152,11 +142,16 @@ function Money() {
         setBankTotal(newBank);
         setBetMax(newBank);
         setRoundMax(newBank);
+        setResultTag(`You won $${newBank.toLocaleString()}`);
       } else {
         setRoundResult("Incorrect");
         setRightWrong(wrong)
         setResultWL(false);
         newBank = bankTotal - wagerAmount;
+        if (newBank === 0) {
+          setResultHeader(`Sorry ${playerName}`);
+          setResultTag("Better luck next time");
+        }
         setBankTotal(newBank);
         setBetMax(newBank);
         setRoundMax(newBank);
@@ -168,7 +163,9 @@ function Money() {
     setWagerDis(true);
     setCurrentCardValue(nextCardValue);
 
-    console.log(`${hiLow} - Base Card: ${currentCardValue} - Next Card: ${nextCardValue}`);
+    let cardAnime = "reveal 4s ease 0s 1 normal forwards running";
+    document.querySelector("#flip-card-inner").style.animation = cardAnime;
+    document.querySelector("#flip-card-back").style.animation  = cardAnime;
 
     setShowResults(true);
     let nextKey = uuidv4();
@@ -185,7 +182,7 @@ function Money() {
       setSwapOutDis(true)
     }
 
-    if (roundNum === roundLimit) {
+    if (roundNum === roundLimit || newBank === 0) {
       console.log("Round Over");
       toggle();
       setShowResults(false)
@@ -206,6 +203,9 @@ function Money() {
     if (!swapOutUsed) {
       setSwapOutDis(false)
     }
+
+    document.querySelector("#flip-card-inner").style.removeProperty("animation");
+    document.querySelector("#flip-card-back").style.removeProperty("animation");
   }
   // ------------------------------------------------------------------------------------------- \\
 
@@ -257,9 +257,14 @@ function Money() {
           {displayCards}
         </div>
       </div>
-      <div className="flip-card">
-        <div className="card">
-          {revealCard}
+      <div class="flip-card">
+        <div class="flip-card-inner" id="flip-card-inner">
+          <div class="flip-card-front">
+            <img className="display-card" src={goldBack} alt="Card Sharks" />
+          </div>
+          <div class="flip-card-back" id="flip-card-back">
+            {revealCard}
+          </div>
         </div>
       </div>
       <div className="directions">{directions}</div>
