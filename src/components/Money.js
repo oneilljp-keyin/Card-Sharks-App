@@ -15,6 +15,14 @@ import push from "../assets/push.png";
 //-------------------------------------------------------------------------------
 
 function Money() {
+  useEffect(() => {
+    let allowedIn = sessionStorage.getItem("allowedIn");
+    if (!allowedIn || allowedIn === "undefined") {
+      alert("Please play the main round\nbefore proceeding to the money round")
+      window.location.href = "/";
+    }
+  }, [])
+
   const playerName = sessionStorage.getItem("currentPlayerName");
   let   roundLimit = parseInt(sessionStorage.getItem("roundLimit"));
 
@@ -129,7 +137,7 @@ function Money() {
   
     nextCardValue = parseInt(cardValue(cards.cards[num].value));
 
-    let newBank;
+    let newBank = bankTotal;
     if (nextCardValue === currentCardValue) {
       setRoundResult("Push");
       setRightWrong(push)
@@ -138,24 +146,24 @@ function Money() {
         setRoundResult("Correct");
         setRightWrong(right)
         setResultWL(true);
-        newBank = bankTotal + wagerAmount;
-        setBankTotal(newBank);
-        setBetMax(newBank);
-        setRoundMax(newBank);
+        newBank += wagerAmount;
         setResultTag(`You won $${newBank.toLocaleString()}`);
       } else {
         setRoundResult("Incorrect");
         setRightWrong(wrong)
         setResultWL(false);
-        newBank = bankTotal - wagerAmount;
+        newBank -= wagerAmount;
         if (newBank === 0) {
           setResultHeader(`Sorry ${playerName}`);
           setResultTag("Better luck next time");
         }
-        setBankTotal(newBank);
-        setBetMax(newBank);
-        setRoundMax(newBank);
-      }  
+      }
+      
+    setTimeout(function() {
+      setBankTotal(newBank);
+      setBetMax(newBank);
+      setRoundMax(newBank);
+    }, 2900);
 
     if (roundNum + 1 === roundLimit) {
       setRoundMin(newBank / 2);
@@ -163,9 +171,11 @@ function Money() {
     setWagerDis(true);
     setCurrentCardValue(nextCardValue);
 
-    let cardAnime = "reveal 4s ease 0s 1 normal forwards running";
+    let cardAnime = "reveal 3s ease 0s 1 normal forwards running";
+    let resultReveal = "result 3s ease 0s 1 normal forwards running";
     document.querySelector("#flip-card-inner").style.animation = cardAnime;
     document.querySelector("#flip-card-back").style.animation  = cardAnime;
+    document.querySelector("#right-wrong").style.animation  = resultReveal;
 
     setShowResults(true);
     let nextKey = uuidv4();
@@ -183,9 +193,11 @@ function Money() {
     }
 
     if (roundNum === roundLimit || newBank === 0) {
-      console.log("Round Over");
-      toggle();
-      setShowResults(false)
+      setTimeout(function() {
+        console.log("Round Over");
+        toggle();
+        setShowResults(false);
+      }, 4000);
     }
   }
   // --------------------------------------------------------------------------------------------- \\
@@ -206,6 +218,7 @@ function Money() {
 
     document.querySelector("#flip-card-inner").style.removeProperty("animation");
     document.querySelector("#flip-card-back").style.removeProperty("animation");
+    document.querySelector("#right-wrong").style.removeProperty("animation");
   }
   // ------------------------------------------------------------------------------------------- \\
 
@@ -235,14 +248,13 @@ function Money() {
 
   console.log(roundLimit, roundNum);
 
-
   return (
     <>
       <div className="header" style={{ display: showResults ? "none" : "block" }}>
         <button className="gold-button" disabled={startDisplay} onClick={showFirstCard}>{startButton}</button>
       </div>
       <div className="header" style={{ display: showResults ? "block" : "none" }}>
-        <table className="rightwrong">
+        <table className="rightwrong" id="right-wrong">
           <tbody>
             <tr>
               <td><img className="result" src={rightWrong} alt="Result" /></td>

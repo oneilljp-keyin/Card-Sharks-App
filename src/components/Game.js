@@ -28,11 +28,6 @@ function Game() {
   const [directions, setDirections]             = useState("Press Start to Play");
   const [roundNum, setRoundNum]                 = useState(0);
 
-
-
-
-
-
   const [currentCardValue, setCurrentCardValue] = useState()
   const [nextCards, setNextCards]               = useState();
   const [drawCards, setDrawCards]               = useState();
@@ -150,13 +145,15 @@ function Game() {
           setResultHeader(`Sorry ${playerName}`);
           setResultTag("Better luck next time");    
         }
-        setTurnsRemain(previousValue => previousValue - 1);
+        setTimeout(function() {
+          setTurnsRemain(previousValue => previousValue - 1);
+        }, 3000);
         setResultWL(false);
       }  
 
     console.log(`${hiLow} - Base Card: ${currentCardValue} - Next Card: ${nextCardValue} ${rightOrWrong}`);
 
-    let cardAnime = "reveal 3s ease 0s 1 normal forwards running";
+    let cardAnime    = "reveal 3s ease 0s 1 normal forwards running";
     let resultReveal = "result 3s ease 0s 1 normal forwards running";
     document.querySelector("#flip-card-inner").style.animation = cardAnime;
     document.querySelector("#flip-card-back").style.animation  = cardAnime;
@@ -176,9 +173,15 @@ function Game() {
     }
 
     if (((roundNum === roundLimit) && rightOrWrong) || gameOver) {
-      console.log("Round Over");
-      toggle();
-      setShowResults(false);
+      if (gameOver) {
+        sessionStorage.setItem("allowedIn", true)
+        console.log("Allowed In? ", sessionStorage.getItem("allowedIn"));
+      }
+      setTimeout(function() {
+        console.log("Round Over");
+        toggle();
+        setShowResults(false);
+      }, 4000);
     }
   }
   // --------------------------------------------------------------------------------------------- \\
@@ -224,8 +227,6 @@ function Game() {
 
     setCurrentCardValue(replaceCardValue);
     setDisplayCards(replaceBaseCard);
-
-    return
   }
   // --------------------------------------------------------------------------------------------- \\
 
@@ -261,7 +262,7 @@ function Game() {
         </div>
       </div>
       <div className="directions">{directions}</div>
-      <div className="round-info">{roundNum > 0 ? <h2>Round {roundNum}</h2> : <h2>Hello {playerName} and Welcome To Card Sharks</h2>}</div>
+      <div className="round-info">{roundNum > 0 ? <h2>Round {roundNum}</h2> : <h2>Hello {playerName}, Good Luck!</h2>}</div>
       <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>
         <button id="higherBtn" className="gold-button" disabled={highLowDis} onClick={() => nextCard("higher")}>Higher</button><br />
         <button id="lowerBtn"  className="gold-button" disabled={highLowDis} onClick={() => nextCard("lower")}>Lower</button><br />
@@ -273,11 +274,11 @@ function Game() {
         <p><strong>2</strong> is the lowest card - <strong>ACE</strong> is the highest card</p>
       </div>
       <Modal
-        isShowing={isShowing}
-        hide={toggle}
-        result={resultWL}
-        header={resultHeader}
-        tag={resultTag}
+        isShowing = {isShowing}
+        hide      = {toggle}
+        result    = {resultWL}
+        header    = {resultHeader}
+        tag       = {resultTag}
       />
     </>
   );
