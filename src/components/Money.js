@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import useModal from "./useModal";
 import Modal from "./Results";
 
@@ -15,11 +16,12 @@ import push from "../assets/push.png";
 //-------------------------------------------------------------------------------
 
 function Money() {
+  const history = useHistory();
   useEffect(() => {
     let allowedIn = sessionStorage.getItem("allowedIn");
-    if (!allowedIn || allowedIn === "undefined") {
+    if (!allowedIn || allowedIn === undefined) {
       alert("Please play the main round\nbefore proceeding to the money round")
-      window.location.href = "/";
+      history.push("/");
     }
   }, [])
 
@@ -131,6 +133,14 @@ function Money() {
     let hiLow = option;
 
     let wagerAmount = parseInt(document.getElementById("wager").value);
+    if (wagerAmount > roundMax) {
+      alert("Bet is too high!");
+      return;
+    } else if (wagerAmount < roundMin) {
+      alert("Bet is too low");
+      return;
+    }
+
     console.log(wagerAmount);
 
     let nextCardValue;
@@ -198,6 +208,10 @@ function Money() {
         toggle();
         setShowResults(false);
       }, 4000);
+      if (newBank !== 0) {
+        HighScore(playerName, newBank);
+        console.log("Update High Scores");
+      }
     }
   }
   // --------------------------------------------------------------------------------------------- \\
@@ -246,7 +260,25 @@ function Money() {
   }
   // --------------------------------------------------------------------------------------------- \\
 
-  console.log(roundLimit, roundNum);
+  function HighScore(name, score) {
+      const scores = JSON.parse(localStorage.getItem("scores"));
+      const newScore = {"name": name, "score": score};
+  
+      let newScores = [];
+  
+      if (scores !== null) {
+        newScores = Array.from(scores);
+      }
+  
+      console.log(scores);
+      console.log(newScore);
+  
+      newScores.push(newScore);
+      newScores.sort((a, b) => b.score - a.score);
+  
+      localStorage.setItem("scores", JSON.stringify(newScores))
+      console.log(newScores);
+  }
 
   return (
     <>
@@ -300,6 +332,7 @@ function Money() {
         result={resultWL}
         header={resultHeader}
         tag={resultTag}
+        money={true}
       />
     </>
   );

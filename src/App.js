@@ -11,7 +11,7 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/card-sharks">
       <div className="App">
         <Header />
         <Switch>

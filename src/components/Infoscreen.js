@@ -1,10 +1,12 @@
-import React from 'react'
+import React from 'react';
+import { useHistory } from "react-router-dom";
 
 function Infoscreen() {
+  const history = useHistory();
   const playerName = sessionStorage.getItem("currentPlayerName");
 
   function startGame() {
-    window.location.href = "/game";
+    history.push("/game");
   }
 
   return (

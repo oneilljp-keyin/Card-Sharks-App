@@ -1,8 +1,9 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import "../App.css";
 
 function MainMenu() {
+  let history = useHistory();
   function infoPage() {
     let playerName = document.getElementById("playerName").value;
     if (playerName.length === 0) {
@@ -12,9 +13,9 @@ function MainMenu() {
 
     sessionStorage.setItem("currentPlayerName", playerName);
     sessionStorage.setItem("roundLimit", 6);
-    sessionStorage.setItem("moneyRound", false);
+    sessionStorage.setItem("allowedIn", false);
 
-    window.location.href = "/infoscreen";
+    history.push("/infoscreen");
   }
 
   return (

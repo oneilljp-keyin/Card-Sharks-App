@@ -16,7 +16,7 @@ button:disabled {color: #00000055; cursor: default;}
 h1 {margin: 8px 0;}
 
 table.scores {
-  width: 90%; background-color: rgba(255, 255, 255, 0.91); color: #121212; margin: 0 auto;
+  width: 72%; background-color: rgba(255, 255, 255, 0.91); color: #121212; margin: 0 auto;
   font-size: medium; border-spacing: 15px; border-collapse: collapse; border-radius: 5px;
 }
 .scores-header {border-bottom: 2px solid black;}

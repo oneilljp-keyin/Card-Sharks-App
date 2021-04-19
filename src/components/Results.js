@@ -6,7 +6,7 @@ import SmallGold from "../assets/cs-square-gold-mini.png";
 import SmallBlue from "../assets/cs-square-blue-mini.png";
 import SmallRed  from "../assets/cs-square-red-mini.png";
 
-const Results = ({ isShowing, hide, result, header, tag}) => isShowing ? ReactDOM.createPortal(
+const Results = ({ isShowing, hide, result, header, tag, money}) => isShowing ? ReactDOM.createPortal(
   <React.Fragment>
     <div className="modal-overlay"/>
     <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
@@ -24,7 +24,9 @@ const Results = ({ isShowing, hide, result, header, tag}) => isShowing ? ReactDO
         </p>
         <div className="modal-buttons">
           <Link className="gold-button" to="/">Main Menu</Link>
-          { result ? <Link className="gold-button" to="/money">Money Round</Link> : <button className="gold-button" onClick={() => window.location.reload(true)}>Try Again</button> }
+          { result && !money ? <Link className="gold-button" to="/money">Money Round</Link> : null}
+          { !result && !money ? <button className="gold-button" onClick={() => window.location.reload(true)}>Try Again</button> : null}
+          { money ? <Link className="gold-button" to="/highscores">High Scores</Link> : null}
           <br />
         </div>
       </div>

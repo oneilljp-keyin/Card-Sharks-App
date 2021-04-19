@@ -20,7 +20,7 @@ function Game() {
 
   let placeholder = [];
   placeholder.push(
-      <img src={blueBack} alt="Card Shards" className="display-card" />
+      <img key={uuidv4()} src={blueBack} alt="Card Shards" className="display-card" />
   );
 
   const {isShowing, toggle} = useModal();
@@ -50,9 +50,9 @@ function Game() {
   const [highLowDis, setHighLowDis]             = useState(false);
   const [swapOutDis, setSwapOutDis]             = useState(false);
   const [swapOutUsed, setSwapOutUsed]           = useState(false);
+  const startPileNum = roundLimit + 1;
   
   useEffect(() => {
-    let startPileNum = roundLimit + 1;
     const fetchDeck = async () => {
       let deck = await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1");
       let deckJSON = await deck.json();
@@ -174,9 +174,11 @@ function Game() {
 
     if (((roundNum === roundLimit) && rightOrWrong) || gameOver) {
       if (gameOver) {
+        sessionStorage.setItem("allowedIn", false)
+      } else {
         sessionStorage.setItem("allowedIn", true)
-        console.log("Allowed In? ", sessionStorage.getItem("allowedIn"));
       }
+      console.log("Allowed In? ", sessionStorage.getItem("allowedIn"));
       setTimeout(function() {
         console.log("Round Over");
         toggle();
@@ -279,6 +281,7 @@ function Game() {
         result    = {resultWL}
         header    = {resultHeader}
         tag       = {resultTag}
+        money     = {false}
       />
     </>
   );
