@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import useModal from "./useModal";
-import Modal from "./Results";
+import useResultModal from "./useResultModal";
+import useChoiceModal from "./useChoiceModal";
+import ResultsModal from "./Results";
+import ChoiceModal from "./Choice";
+import CardValue from "./CardValue";
 
 import '../App.css';
 import { v4 as uuidv4 } from 'uuid'; // then use uuidv4() to insert id
@@ -17,13 +20,15 @@ import push from "../assets/push.png";
 
 function Money() {
   const history = useHistory();
+
+  // checks to see if user has completed main round
   useEffect(() => {
     let allowedIn = sessionStorage.getItem("allowedIn");
     if (!allowedIn || allowedIn === undefined) {
       alert("Please play the main round\nbefore proceeding to the money round")
       history.push("/");
     }
-  }, [])
+  }, [history])
 
   const playerName = sessionStorage.getItem("currentPlayerName");
   let   roundLimit = parseInt(sessionStorage.getItem("roundLimit"));
@@ -33,7 +38,8 @@ function Money() {
       <img key="gold-card" src={goldBack} alt="Card Shards" className="display-card" />
   );
 
-  const {isShowing, toggle} = useModal();
+  const {isShowingResult, toggleResult}         = useResultModal();
+  const {isShowingChoice, toggleChoice}         = useChoiceModal();
 
   const [directions, setDirections]             = useState("Press Start to Play");
   const [roundNum, setRoundNum]                 = useState(0);
@@ -68,6 +74,7 @@ function Money() {
   const [swapOutUsed, setSwapOutUsed]           = useState(false);
   const [wagerDis, setWagerDis]                 = useState(true);
   
+  // retreives a randomize deck and cards need for game
   useEffect(() => {
     let startPileNum = 7;
     const fetchDeck = async () => {
@@ -82,23 +89,11 @@ function Money() {
       let second = await fetch(`https://deckofcardsapi.com/api/deck/${deckJSON.deck_id}/draw/?count=1`)
       let secondJSON = await second.json();
 
-      console.log(firstJSON);
-      console.log(secondJSON);
-  
       setDrawCards(secondJSON);
     }
 
     fetchDeck();
   }, []);
-
-  function cardValue(cardValue) {
-    let value = cardValue;
-    if (value === "ACE")   {return 14;} else
-    if (value === "KING")  {return 13;} else 
-    if (value === "QUEEN") {return 12;} else 
-    if (value === "JACK")  {return 11;} else
-       {return value};
-  }
 
   // -------- starts the game and stores the value of first card for comparison ------------------ \\
   function showFirstCard() {
@@ -112,7 +107,7 @@ function Money() {
 
     let nextKey = uuidv4();
 
-    let firstValue = parseInt(cardValue(data.cards[roundNum].value));
+    let firstValue = CardValue(data.cards[roundNum].value);
     setCurrentCardValue(firstValue);
 
     let outputArray = [];
@@ -132,6 +127,7 @@ function Money() {
     let num = roundNum;
     let hiLow = option;
 
+    // Check wager amount
     let wagerAmount = parseInt(document.getElementById("wager").value);
     if (wagerAmount > roundMax) {
       alert("Bet is too high!");
@@ -141,12 +137,11 @@ function Money() {
       return;
     }
 
-    console.log(wagerAmount);
-
+    // get value of next card
     let nextCardValue;
-  
-    nextCardValue = parseInt(cardValue(cards.cards[num].value));
+    nextCardValue = CardValue(cards.cards[num].value);
 
+    // compare values and adjust bank total if necessary
     let newBank = bankTotal;
     if (nextCardValue === currentCardValue) {
       setRoundResult("Push");
@@ -168,19 +163,25 @@ function Money() {
           setResultTag("Better luck next time");
         }
       }
-      
+
+    // set bank total and bet limits, delay to prevent spoiling before card is revealed
     setTimeout(function() {
       setBankTotal(newBank);
       setBetMax(newBank);
       setRoundMax(newBank);
     }, 2900);
 
+    // when final round, sets min bet to half total and displays option modal
     if (roundNum + 1 === roundLimit) {
       setRoundMin(newBank / 2);
+      setTimeout(function() {
+        toggleChoice()
+      }, 4000);
     }
     setWagerDis(true);
     setCurrentCardValue(nextCardValue);
 
+    // sets card to rotate to reveal and delays continue button until shown
     let cardAnime = "reveal 3s ease 0s 1 normal forwards running";
     let resultReveal = "result 3s ease 0s 1 normal forwards running";
     document.querySelector("#flip-card-inner").style.animation = cardAnime;
@@ -202,14 +203,15 @@ function Money() {
       setSwapOutDis(true)
     }
 
+    // triggers result modal after round 6 or when bank hits 0
     if (roundNum === roundLimit || newBank === 0) {
       setTimeout(function() {
         console.log("Round Over");
-        toggle();
+        toggleResult();
         setShowResults(false);
       }, 4000);
       if (newBank !== 0) {
-        HighScore(playerName, newBank);
+        highScore(playerName, newBank);
         console.log("Update High Scores");
       }
     }
@@ -251,7 +253,7 @@ function Money() {
     );
     
     setDrawPileNumber(previousValue => previousValue + 1);
-    let replaceCardValue = parseInt(cardValue(swapCards.cards[pileNum].value));
+    let replaceCardValue = CardValue(swapCards.cards[pileNum].value);
 
     setCurrentCardValue(replaceCardValue);
     setDisplayCards(replaceBaseCard);
@@ -260,7 +262,8 @@ function Money() {
   }
   // --------------------------------------------------------------------------------------------- \\
 
-  function HighScore(name, score) {
+  // stores score in local storage
+  function highScore(name, score) {
       const scores = JSON.parse(localStorage.getItem("scores"));
       const newScore = {"name": name, "score": score};
   
@@ -269,15 +272,27 @@ function Money() {
       if (scores !== null) {
         newScores = Array.from(scores);
       }
-  
-      console.log(scores);
-      console.log(newScore);
-  
+    
       newScores.push(newScore);
       newScores.sort((a, b) => b.score - a.score);
   
       localStorage.setItem("scores", JSON.stringify(newScores))
-      console.log(newScores);
+  }
+
+  function submitScore() {
+    setRoundNum(previousValue => previousValue + 1);
+    toggleChoice();
+    toggleResult();
+    setShowResults(false);
+    highScore(playerName, bankTotal);
+  }
+
+  function mainMenu() {
+    if (window.confirm("Are you sure you want to\nreturn to the main menu\n(All progress will be lost)")) {
+      history.push("/");
+    } else {
+      return
+    }
   }
 
   return (
@@ -301,18 +316,18 @@ function Money() {
           {displayCards}
         </div>
       </div>
-      <div class="flip-card">
-        <div class="flip-card-inner" id="flip-card-inner">
-          <div class="flip-card-front">
+      <div className="flip-card">
+        <div className="flip-card-inner" id="flip-card-inner">
+          <div className="flip-card-front">
             <img className="display-card" src={goldBack} alt="Card Sharks" />
           </div>
-          <div class="flip-card-back" id="flip-card-back">
+          <div className="flip-card-back" id="flip-card-back">
             {revealCard}
           </div>
         </div>
       </div>
       <div className="directions">{directions}</div>
-      <div className="round-info">{roundNum > 0 ? <span className="header-message">Round {roundNum} - Place Wager Below</span> : <span className="header-message">Welcome To The MONEY Round</span>}</div>
+      <div className="round-info">{roundNum > 0 ? <span className="header-message">Round {roundNum} - Place Wager Below</span> : <span className="header-message">Welcome To The MONEY Round {playerName}</span>}</div>
       <div className="buttons" style={{ display: showBtns ? "block" : "none" }}>
         <button id="higherBtn" className="gold-button" disabled={highBtnDis} onClick={() => nextCard("higher")}>Higher</button><br />
         <button id="lowerBtn"  className="gold-button" disabled={lowBtnDis}  onClick={() => nextCard("lower")}>Lower</button><br />
@@ -322,17 +337,29 @@ function Money() {
         <span className="header-message">Bank Total: ${bankTotal.toLocaleString()}</span><br />
         <input disabled={wagerDis} id="wager" type="number" min={roundMin} max={roundMax} step="500" pattern="[0-9]*" value={betMax} onChange={e => setBetMax(parseInt(e.target.value))}/><br />
         <span className="header-message">Minimum Bet is ${roundMin.toLocaleString()}</span>
+        <p><strong>2</strong> is the lowest card - <strong>ACE</strong> is the highest card</p>
         <p>If the cards have the same value, it is considered a push,<br /> 
         you will not win or lose any money</p>
         <p>You can swap out your base card <strong>ONLY ONCE</strong></p>
       </div>
-      <Modal
-        isShowing={isShowing}
-        hide={toggle}
-        result={resultWL}
-        header={resultHeader}
-        tag={resultTag}
-        money={true}
+      <div className="footer-button">
+        <button id="menuBtn"   className="gold-button" onClick={mainMenu}>Main Menu</button>
+      </div>
+      <ResultsModal
+        isShowing = {isShowingResult}
+        hide      = {toggleResult}
+        result    = {resultWL}
+        header    = {resultHeader}
+        tag       = {resultTag}
+        money     = {true}
+      />
+      <ChoiceModal
+        isShowing = {isShowingChoice}
+        hide      = {toggleChoice}
+        name      = {playerName}
+        money     = {bankTotal}
+        baseCard  = {revealCard}
+        setRound  = {submitScore}
       />
     </>
   );

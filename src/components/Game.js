@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import useModal from "./useModal";
-import Modal from "./Results";
+import { useHistory } from "react-router-dom";
+import useResultModal from "./useResultModal";
+import ResultsModal from "./Results";
+import CardValue from "./CardValue";
 
 import '../App.css';
 import { v4 as uuidv4 } from 'uuid'; // then use uuidv4() to insert id
 
 import blueBack from "../assets/cs_back_blue.png";
-// import redBack from "./assets/cs_back_red.png";
 import right from "../assets/right.png";
 import wrong from "../assets/wrong.png";
 
@@ -16,17 +17,18 @@ import wrong from "../assets/wrong.png";
 
 function Game() {
   const playerName = sessionStorage.getItem("currentPlayerName");
-  let   roundLimit = parseInt(sessionStorage.getItem("roundLimit"));
+  const history = useHistory();
 
   let placeholder = [];
   placeholder.push(
       <img key={uuidv4()} src={blueBack} alt="Card Shards" className="display-card" />
   );
 
-  const {isShowing, toggle} = useModal();
+  const {isShowingResult, toggleResult} = useResultModal();
 
   const [directions, setDirections]             = useState("Press Start to Play");
   const [roundNum, setRoundNum]                 = useState(0);
+  const [roundLimit, setRoundLimit]             = useState()
 
   const [currentCardValue, setCurrentCardValue] = useState()
   const [nextCards, setNextCards]               = useState();
@@ -46,14 +48,19 @@ function Game() {
 
   const [startDisplay, setStartDisplay]         = useState(false);
   const [showResults, setShowResults]           = useState(false);
+  const [continueDis, setContinuDis]            = useState(false);
   const [showBtns, setShowBtns]                 = useState(false);
   const [highLowDis, setHighLowDis]             = useState(false);
   const [swapOutDis, setSwapOutDis]             = useState(false);
   const [swapOutUsed, setSwapOutUsed]           = useState(false);
-  const startPileNum = roundLimit + 1;
   
+  // retreives a randomize deck and cards need for game
   useEffect(() => {
     const fetchDeck = async () => {
+      let   roundLimit = parseInt(sessionStorage.getItem("roundLimit"));
+      setRoundLimit(roundLimit);
+      const startPileNum = roundLimit + 1;
+
       let deck = await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1");
       let deckJSON = await deck.json();
 
@@ -64,24 +71,12 @@ function Game() {
 
       let second = await fetch(`https://deckofcardsapi.com/api/deck/${deckJSON.deck_id}/draw/?count=4`)
       let secondJSON = await second.json();
-
-      console.log(firstJSON);
-      console.log(secondJSON);
   
       setDrawCards(secondJSON);
     }
 
     fetchDeck();
   }, []);
-
-  function cardValue(cardValue) {
-    let value = cardValue;
-    if (value === "ACE")   {return 14;} else
-    if (value === "KING")  {return 13;} else 
-    if (value === "QUEEN") {return 12;} else 
-    if (value === "JACK")  {return 11;} else
-       {return value};
-  }
 
   // -------- starts the game and stores the value of first card for comparison ------------------ \\
   function showFirstCard() {
@@ -92,15 +87,13 @@ function Game() {
     setStartButton("Good Luck!");
     setDirections("Is The Next Card Higher or Lower?")
 
-    let nextKey = uuidv4();
-
-    let firstValue = parseInt(cardValue(data.cards[roundNum].value));
+    let firstValue = parseInt(CardValue(data.cards[roundNum].value));
     setCurrentCardValue(firstValue);
 
     let outputArray = [];
 
     outputArray.push(
-        <img key={nextKey} src={data.cards[roundNum].image} alt={data.cards[roundNum].code} className="display-card" />
+        <img key={uuidv4()} src={data.cards[roundNum].image} alt={data.cards[roundNum].code} className="display-card" />
     );
 
     setDisplayCards(outputArray);
@@ -118,17 +111,18 @@ function Game() {
     let nextCardValue;
     let gameOver = false;
 
+    // get value of next card
     if (rightWrong === wrong) {
       cards = drawCards;
       num = drawPileNumber
-      nextCardValue = parseInt(cardValue(cards.cards[num].value));
       setDrawPileNumber(previousValue => previousValue + 1);
     } else {
       cards = nextCards;
       num = roundNum;
-      nextCardValue = parseInt(cardValue(cards.cards[num].value));
     }
+    nextCardValue = CardValue(cards.cards[num].value);
 
+    // compare card values
     if ((hiLow === "higher" && nextCardValue > currentCardValue) ||
       (hiLow === "lower" && nextCardValue < currentCardValue)) {
         setRoundResult("Correct");
@@ -151,8 +145,7 @@ function Game() {
         setResultWL(false);
       }  
 
-    console.log(`${hiLow} - Base Card: ${currentCardValue} - Next Card: ${nextCardValue} ${rightOrWrong}`);
-
+    // sets card to rotate to reveal and delays continue button until shown
     let cardAnime    = "reveal 3s ease 0s 1 normal forwards running";
     let resultReveal = "result 3s ease 0s 1 normal forwards running";
     document.querySelector("#flip-card-inner").style.animation = cardAnime;
@@ -160,10 +153,13 @@ function Game() {
     document.querySelector("#right-wrong").style.animation  = resultReveal;
 
     setShowResults(true);
+    if(gameOver === true) {
+      setContinuDis(true);
+    }
 
     let addToArray = [];
     addToArray.push(
-        <img src={cards.cards[num].image} alt={cards.cards[num].code} className="display-card" />
+        <img key={uuidv4()} src={cards.cards[num].image} alt={cards.cards[num].code} className="display-card" />
     );
 
     setRevealCard(addToArray);
@@ -172,16 +168,15 @@ function Game() {
       setSwapOutDis(true);
     }
 
+    // shows modal if round 6 is completed or 3 wrong guesses
     if (((roundNum === roundLimit) && rightOrWrong) || gameOver) {
       if (gameOver) {
         sessionStorage.setItem("allowedIn", false)
       } else {
         sessionStorage.setItem("allowedIn", true)
       }
-      console.log("Allowed In? ", sessionStorage.getItem("allowedIn"));
       setTimeout(function() {
-        console.log("Round Over");
-        toggle();
+        toggleResult();
         setShowResults(false);
       }, 4000);
     }
@@ -220,17 +215,25 @@ function Game() {
 
     replaceBaseCard.push(
       <div className="card" key={swapKey}>
-        <img src={swapCards.cards[pileNum].image} alt={swapCards.cards[pileNum].code} className="display-card" />
+        <img key={uuidv4()} src={swapCards.cards[pileNum].image} alt={swapCards.cards[pileNum].code} className="display-card" />
       </div>
     );
     
     setDrawPileNumber(previousValue => previousValue + 1);
-    let replaceCardValue = parseInt(cardValue(swapCards.cards[pileNum].value));
+    let replaceCardValue = CardValue(swapCards.cards[pileNum].value);
 
     setCurrentCardValue(replaceCardValue);
     setDisplayCards(replaceBaseCard);
   }
   // --------------------------------------------------------------------------------------------- \\
+
+  function mainMenu() {
+    if (window.confirm("Are you sure you want to\nreturn to the main menu\n(All progress will be lost)")) {
+      history.push("/");
+    } else {
+      return
+    }
+  }
 
   return (
     <>
@@ -242,7 +245,7 @@ function Game() {
           <tbody>
             <tr>
               <td><img className="result" src={rightWrong} alt="Result" /></td>
-              <td><button id="continue" className="gold-button" onClick={setNextRound}>Continue</button></td>
+              <td><button id="continue" className="gold-button" disabled={continueDis} onClick={setNextRound}>Continue</button></td>
               <td>{roundResult}</td>
             </tr>
           </tbody>
@@ -253,12 +256,12 @@ function Game() {
           {displayCards}
         </div>
       </div>
-      <div class="flip-card">
-        <div class="flip-card-inner" id="flip-card-inner">
-          <div class="flip-card-front">
+      <div className="flip-card">
+        <div className="flip-card-inner" id="flip-card-inner">
+          <div className="flip-card-front">
             <img className="display-card" src={blueBack} alt="Card Sharks" />
           </div>
-          <div class="flip-card-back" id="flip-card-back">
+          <div className="flip-card-back" id="flip-card-back">
             {revealCard}
           </div>
         </div>
@@ -271,13 +274,16 @@ function Game() {
         <button id="swapBtn"   className="gold-button" disabled={swapOutDis} onClick={swapOutCard}>Swap Card</button><br />
         Wrong Guesses Remain: {turnsRemain}</div>
       <div className="tips">
+        <p><strong>2</strong> is the lowest card - <strong>ACE</strong> is the highest card</p>
         <p>If the cards have the same value, you will lose a guess</p>
         <p>You can change your base card <strong>ONLY ONCE</strong></p>
-        <p><strong>2</strong> is the lowest card - <strong>ACE</strong> is the highest card</p>
       </div>
-      <Modal
-        isShowing = {isShowing}
-        hide      = {toggle}
+      <div className="footer-button">
+        <button id="menuBtn"   className="gold-button" onClick={mainMenu}>Main Menu</button>
+      </div>
+      <ResultsModal
+        isShowing = {isShowingResult}
+        hide      = {toggleResult}
         result    = {resultWL}
         header    = {resultHeader}
         tag       = {resultTag}

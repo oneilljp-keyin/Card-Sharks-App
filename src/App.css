@@ -84,9 +84,18 @@ input {
 }
 
 .display-card {height: 120px;}
-
 @media screen and (min-width: 0) and (max-width: 440px) {
   .display-card {height: 96px;}  
+}
+
+.choice-card {height: 56px; float: right;}
+
+.intro {
+  font-size: 2rem;
+}
+
+.title-font {
+  font-family: "Picadilly"; font-size: 4rem; color: #FFD966; text-shadow: 3px 1px black;
 }
 
 .logo {
@@ -127,6 +136,10 @@ input {
 .footer {
   grid-area: footer; display: flex; flex-flow: row nowrap;
   justify-content: space-between; align-items: center;
+}
+
+.footer-button {
+  grid-area: footer; display: flex; justify-content: center; align-self: flex-start;
 }
 
 .gold-button {

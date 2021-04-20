@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Link } from "react-router-dom";
 
 import SmallGold from "../assets/cs-square-gold-mini.png";
 import SmallBlue from "../assets/cs-square-blue-mini.png";
 import SmallRed  from "../assets/cs-square-red-mini.png";
 
-const Results = ({ isShowing, result, header, tag, money}) => isShowing ? ReactDOM.createPortal(
+const Results = ({ isShowing, hide, name, money, baseCard, setRound}) => isShowing ? ReactDOM.createPortal(
   <React.Fragment>
     <div className="modal-overlay"/>
     <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
@@ -17,16 +16,16 @@ const Results = ({ isShowing, result, header, tag, money}) => isShowing ? ReactD
           <img src={SmallRed}  alt="Card Sharks" />
         </div>
         <div className="modal-header">
-        <h1>{header}!</h1>
+        <h1>Congratulations {name}!</h1>
         </div>
         <p>
-        {tag}
+        This is the final round. You can quit now with ${money.toLocaleString()}.
+        Or you can continue, however, you will have to bet at least HALF your money.<br /><br />
+        Your current base card is:<br />{baseCard}
         </p>
         <div className="modal-buttons">
-          <Link className="gold-button" to="/">Main Menu</Link>
-          { result && !money ? <Link className="gold-button" to="/money">Money Round</Link> : null}
-          { !result && !money ? <button className="gold-button" onClick={() => window.location.reload(true)}>Try Again</button> : null}
-          { money ? <Link className="gold-button" to="/highscores">High Scores</Link> : null}
+          <button className="gold-button" onClick={hide}>Continue</button>
+          <button className="gold-button" onClick={setRound}>Submit Score</button>
           <br />
         </div>
       </div>
