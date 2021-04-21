@@ -42,7 +42,7 @@ function Money() {
       setPathString("/");
       setbuttonLabel("Main Menu");
       toggleAlert();
-      setShowLink(false)
+      setShowLink(true)
     }
   }, [])
 
@@ -200,13 +200,13 @@ function Money() {
 
     // sets card to rotate to reveal and delays continue button until shown
     let cardAnime = "reveal 3s ease 0s 1 normal forwards running";
-    let resultReveal = "result 3s ease 0s 1 normal forwards running";
+    let resultReveal = "result 4s ease 0s 1 normal forwards running";
     document.querySelector("#flip-card-inner").style.animation = cardAnime;
     document.querySelector("#flip-card-back").style.animation  = cardAnime;
     document.querySelector("#right-wrong").style.animation  = resultReveal;
 
     setShowResults(true);
-    if(roundNum === roundLimit) {
+    if(roundNum === roundLimit || newBank === 0) {
       setContinuDis(true);
     }
 
@@ -382,6 +382,7 @@ function Money() {
         money     = {bankTotal}
         baseCard  = {revealCard}
         setRound  = {submitScore}
+        swapCard  = {swapOutUsed}
       />
       <AlertModal 
         isShowing  = {isShowingAlert}

@@ -148,7 +148,7 @@ function Game() {
 
     // sets card to rotate to reveal and delays continue button until shown
     let cardAnime    = "reveal 3s ease 0s 1 normal forwards running";
-    let resultReveal = "result 3s ease 0s 1 normal forwards running";
+    let resultReveal = "result 4s ease 0s 1 normal forwards running";
     document.querySelector("#flip-card-inner").style.animation = cardAnime;
     document.querySelector("#flip-card-back").style.animation  = cardAnime;
     document.querySelector("#right-wrong").style.animation  = resultReveal;

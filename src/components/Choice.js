@@ -5,7 +5,7 @@ import SmallGold from "../assets/cs-square-gold-mini.png";
 import SmallBlue from "../assets/cs-square-blue-mini.png";
 import SmallRed  from "../assets/cs-square-red-mini.png";
 
-const Results = ({ isShowing, hide, name, money, baseCard, setRound}) => isShowing ? ReactDOM.createPortal(
+const Results = ({ isShowing, hide, name, money, baseCard, setRound, swapOut}) => isShowing ? ReactDOM.createPortal(
   <React.Fragment>
     <div className="modal-overlay"/>
     <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
@@ -21,7 +21,8 @@ const Results = ({ isShowing, hide, name, money, baseCard, setRound}) => isShowi
         <p>
         This is the final round. You can quit now with ${money.toLocaleString()}.
         Or you can continue, however, you will have to bet at least HALF your money.<br /><br />
-        Your current base card is:<br />{baseCard}
+        Your current base card is:<br />{baseCard}<br />
+        {!swapOut ? <span>And you still have your swap out card</span> : null}
         </p>
         <div className="modal-buttons">
           <button className="gold-button" onClick={hide}>Continue</button>
