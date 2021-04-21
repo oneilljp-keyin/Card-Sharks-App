@@ -10,6 +10,7 @@ function Infoscreen() {
   }
 
   return (
+    <>
     <div className="info-box">
       <h2>Hello {playerName},<br/> Welcome To Card Sharks</h2>
         <p>The first card dealt off the top of the deck is your base card.
@@ -29,6 +30,7 @@ function Infoscreen() {
         </p>
       <button className="gold-button" onClick={startGame} id="button">Good Luck! Let's Play Card Sharks</button>
     </div>
+    </>
   )
 }
 

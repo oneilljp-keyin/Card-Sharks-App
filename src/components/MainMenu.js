@@ -1,14 +1,31 @@
 import { useEffect, useState} from 'react'
 import { Link, useHistory } from 'react-router-dom';
+
+import AlertModal from "./PopUpAlert";
+import useAlertModal from "./useAlertModal";
+
 import "../App.css";
 
 function MainMenu() {
   let history = useHistory();
+
+  const {isShowingAlert, toggleAlert} = useAlertModal();
+
+  const [alertTitle, setAlertTitle] = useState();
+  const [alertMessage, setAlertMessage] = useState();
+
+  const [showOK, setShowOK]         = useState(false)
+  const showCancel = false;
+  const showLink   = false;
+
   function infoPage() {
     let playerName = document.getElementById("playerName").value;
     if (playerName.length === 0) {
-      alert("Please Enter Your Name");
-      return
+      setAlertTitle("Oops!");
+      setAlertMessage("Please Enter Your Name");
+      toggleAlert();
+      setShowOK(true);
+      return;
     }
 
     sessionStorage.setItem("currentPlayerName", playerName);
@@ -43,7 +60,7 @@ function MainMenu() {
   return (
     <>
       <div className="start-page">
-        <input id="playerName" className="name-input" placeholder="Enter Your Name" />
+        <input id="playerName" className="name-input" placeholder="Enter Your Name" autoComplete="off"/>
         <button className="gold-button" onClick={infoPage}>Continue</button>
         <Link className="gold-button" to="/highscores">High Scores</Link>
       </div>
@@ -51,6 +68,15 @@ function MainMenu() {
         <p className="intro">{phrase1}<br />{phrase2}
         <br />on <br /><span className="title-font">CARD<br />SHARKS!</span></p>
       </div>
+      <AlertModal 
+        isShowing  = {isShowingAlert}
+        hide       = {toggleAlert}
+        title      = {alertTitle}
+        message    = {alertMessage}
+        showOK     = {showOK}
+        showCancel = {showCancel}
+        showLink   = {showLink}
+      />
     </>
   )
 }

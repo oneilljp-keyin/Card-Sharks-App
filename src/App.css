@@ -14,6 +14,7 @@ body {
 button:disabled {color: #00000055; cursor: default;}
 
 h1 {margin: 8px 0;}
+h2 {margin: 8px 0;}
 
 table.scores {
   width: 72%; background-color: rgba(255, 255, 255, 0.91); color: #121212; margin: 0 auto;
@@ -26,6 +27,10 @@ table.rightwrong {border: none; padding: 0; border-collapse: collapse; width: 10
 table.rightwrong tbody tr td:nth-child(1) {text-align: right;  width: 33%}
 table.rightwrong tbody tr td:nth-child(2) {text-align: center; width: 34%}
 table.rightwrong tbody tr td:nth-child(3) {text-align: left;   width: 33%}
+
+p {
+  margin: 8px 0;
+}
 
 .header-logo {text-align: center;}
 
@@ -148,6 +153,18 @@ input {
   cursor: pointer; align-self: center; text-decoration: none; border: 1px solid #000000;
 }
 
+.blue-button {
+  font-family: "Picadilly"; background-color: #002060; font-size: 20px;
+  border-radius: 5px; width: 16ch; margin: 8px 0; padding-top: 3px; color: whitesmoke;
+  cursor: pointer; align-self: center; text-decoration: none; border: 1px solid black;
+}
+
+.red-button {
+  font-family: "Picadilly"; background-color: #C00000; font-size: 20px;
+  border-radius: 5px; width: 16ch; margin: 8px 0; padding-top: 3px; color: whitesmoke;
+  cursor: pointer; align-self: center; text-decoration: none; border: 1px solid black;
+}
+
 /* ------ Results Revelation --------------------------------------------------------- */
 @keyframes result {
   0% {opacity: 0;}
@@ -183,7 +200,7 @@ input {
 }
 /* --------------------------------------------------------------------------------------------- */
 
-/* -------- Modal Display Properties ----------------------------------------------------------- */
+/* -------- Results/Choice Modal Display Properties -------------------------------------------- */
 .modal-overlay {
   position: fixed; top: 0; left: 0; z-index: 40; width: 100vw; height: 100vh; background-color: #000;
   opacity: .5;
@@ -211,3 +228,18 @@ input {
 .modal-header  {text-align: center;}
 
 .modal-buttons {display: flex; justify-content: center; width: 100%;}
+/* --------------------------------------------------------------------------------------------- */
+
+/* -------- Alert Modal Display Properties -------------------------------------------- */
+.alert-modal-wrapper {
+  position: fixed; top: 0; left: 0; z-index: 50; width: 100%; height: 100%;
+  overflow-x: hidden; overflow-y: auto; outline: 0;
+}
+
+.alert-modal {
+  z-index: 100; background: #FFFFFFCC; color: black; position: relative; text-align: center;
+  margin: 1.75rem auto; border-radius: 10px; max-width: 300px; padding: 2rem;
+  backdrop-filter: blur(50px); 
+}
+
+/* --------------------------------------------------------------------------------------------- */

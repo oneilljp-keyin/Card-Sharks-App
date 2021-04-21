@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+
 import useResultModal from "./useResultModal";
 import ResultsModal from "./Results";
 import CardValue from "./CardValue";
+import AlertModal from "./PopUpAlert";
+import useAlertModal from "./useAlertModal";
 
 import '../App.css';
 import { v4 as uuidv4 } from 'uuid'; // then use uuidv4() to insert id
@@ -17,7 +19,6 @@ import wrong from "../assets/wrong.png";
 
 function Game() {
   const playerName = sessionStorage.getItem("currentPlayerName");
-  const history = useHistory();
 
   let placeholder = [];
   placeholder.push(
@@ -153,7 +154,7 @@ function Game() {
     document.querySelector("#right-wrong").style.animation  = resultReveal;
 
     setShowResults(true);
-    if(gameOver === true) {
+    if((gameOver === true) || (roundNum === roundLimit)) {
       setContinuDis(true);
     }
 
@@ -227,13 +228,28 @@ function Game() {
   }
   // --------------------------------------------------------------------------------------------- \\
 
+  // -------- alert modal ------------------------------------------------------------------------ \\
+  const {isShowingAlert, toggleAlert} = useAlertModal();
+
+  const [alertTitle, setAlertTitle]     = useState();
+  const [alertMessage, setAlertMessage] = useState();
+  const [pathString, setPathString]     = useState();
+  const [buttonLabel, setbuttonLabel]   = useState();
+
+  const showOK = false;
+  const [showCancel, setShowCancel] = useState(false)
+  const [showLink, setShowLink]     = useState(false)
+
   function mainMenu() {
-    if (window.confirm("Are you sure you want to\nreturn to the main menu\n(All progress will be lost)")) {
-      history.push("/");
-    } else {
-      return
-    }
+    setAlertTitle("Are you sure?");
+    setAlertMessage("All progress will be lost");
+    toggleAlert();
+    setPathString("/");
+    setbuttonLabel("Main Menu");
+    setShowLink(true)
+    setShowCancel(true)
   }
+  // --------------------------------------------------------------------------------------------- \\
 
   return (
     <>
@@ -282,12 +298,23 @@ function Game() {
         <button id="menuBtn"   className="gold-button" onClick={mainMenu}>Main Menu</button>
       </div>
       <ResultsModal
-        isShowing = {isShowingResult}
-        hide      = {toggleResult}
-        result    = {resultWL}
-        header    = {resultHeader}
-        tag       = {resultTag}
-        money     = {false}
+        isShowing  = {isShowingResult}
+        hide       = {toggleResult}
+        result     = {resultWL}
+        header     = {resultHeader}
+        tag        = {resultTag}
+        money      = {false}
+      />
+      <AlertModal 
+        isShowing  = {isShowingAlert}
+        hide       = {toggleAlert}
+        title      = {alertTitle}
+        message    = {alertMessage}
+        path       = {pathString}
+        button     = {buttonLabel}
+        showOK     = {showOK}
+        showCancel = {showCancel}
+        showLink   = {showLink}
       />
     </>
   );

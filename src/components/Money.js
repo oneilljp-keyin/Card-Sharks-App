@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+
 import useResultModal from "./useResultModal";
 import useChoiceModal from "./useChoiceModal";
 import ResultsModal from "./Results";
 import ChoiceModal from "./Choice";
 import CardValue from "./CardValue";
+import AlertModal from "./PopUpAlert";
+import useAlertModal from "./useAlertModal";
 
 import '../App.css';
 import { v4 as uuidv4 } from 'uuid'; // then use uuidv4() to insert id
@@ -19,16 +21,30 @@ import push from "../assets/push.png";
 //-------------------------------------------------------------------------------
 
 function Money() {
-  const history = useHistory();
-
   // checks to see if user has completed main round
+  const {isShowingAlert, toggleAlert} = useAlertModal();
+
+  const [alertTitle, setAlertTitle]     = useState();
+  const [alertMessage, setAlertMessage] = useState();
+  const [pathString, setPathString]     = useState();
+  const [buttonLabel, setbuttonLabel]   = useState();
+
+  const showOK     = false;
+  const showCancel = false;
+  const [showLink, setShowLink]     = useState(false)
+
   useEffect(() => {
     let allowedIn = sessionStorage.getItem("allowedIn");
-    if (!allowedIn || allowedIn === undefined) {
-      alert("Please play the main round\nbefore proceeding to the money round")
-      history.push("/");
+    console.log("Is This Working??", allowedIn)
+    if (!allowedIn || allowedIn === "false") {
+      setAlertTitle("I'm Sorry");
+      setAlertMessage("You must play the Main Game to get to the Money Game");
+      setPathString("/");
+      setbuttonLabel("Main Menu");
+      toggleAlert();
+      setShowLink(false)
     }
-  }, [history])
+  }, [])
 
   const playerName = sessionStorage.getItem("currentPlayerName");
   let   roundLimit = parseInt(sessionStorage.getItem("roundLimit"));
@@ -67,6 +83,7 @@ function Money() {
 
   const [startDisplay, setStartDisplay]         = useState(false);
   const [showResults, setShowResults]           = useState(false);
+  const [continueDis, setContinuDis]            = useState(false);
   const [showBtns, setShowBtns]                 = useState(false);
   const [highBtnDis, setHighBtnDis]             = useState(false);
   const [lowBtnDis, setLowBtnDis]               = useState(false);
@@ -172,7 +189,7 @@ function Money() {
     }, 2900);
 
     // when final round, sets min bet to half total and displays option modal
-    if (roundNum + 1 === roundLimit) {
+    if (roundNum + 1 === roundLimit && newBank !== 0) {
       setRoundMin(newBank / 2);
       setTimeout(function() {
         toggleChoice()
@@ -189,8 +206,11 @@ function Money() {
     document.querySelector("#right-wrong").style.animation  = resultReveal;
 
     setShowResults(true);
-    let nextKey = uuidv4();
+    if(roundNum === roundLimit) {
+      setContinuDis(true);
+    }
 
+    let nextKey = uuidv4();
     let addToArray = [];
     addToArray.push(
         <img key={nextKey} src={cards.cards[num].image} alt={cards.cards[num].code} className="display-card" />
@@ -287,13 +307,15 @@ function Money() {
     highScore(playerName, bankTotal);
   }
 
+  // -------- Alert Modal ------------------------------------------------------------------------ \\
   function mainMenu() {
-    if (window.confirm("Are you sure you want to\nreturn to the main menu\n(All progress will be lost)")) {
-      history.push("/");
-    } else {
-      return
-    }
+    setAlertTitle("Are you sure?");
+    setAlertMessage("All progress will be lost");
+    toggleAlert();
+    setPathString("/");
+    setbuttonLabel("Main Menu");
   }
+  // --------------------------------------------------------------------------------------------- \\
 
   return (
     <>
@@ -305,7 +327,7 @@ function Money() {
           <tbody>
             <tr>
               <td><img className="result" src={rightWrong} alt="Result" /></td>
-              <td><button id="continue" className="gold-button" onClick={setNextRound}>Continue</button></td>
+              <td><button id="continue" className="gold-button" disabled={continueDis} onClick={setNextRound}>Continue</button></td>
               <td>{roundResult}</td>
             </tr>
           </tbody>
@@ -361,6 +383,18 @@ function Money() {
         baseCard  = {revealCard}
         setRound  = {submitScore}
       />
+      <AlertModal 
+        isShowing  = {isShowingAlert}
+        hide       = {toggleAlert}
+        title      = {alertTitle}
+        message    = {alertMessage}
+        path       = {pathString}
+        button     = {buttonLabel}
+        showOK     = {showOK}
+        showCancel = {showCancel}
+        showLink   = {showLink}
+      />
+
     </>
   );
 }

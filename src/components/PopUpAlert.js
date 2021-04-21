@@ -2,31 +2,31 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from "react-router-dom";
 
+
 import SmallGold from "../assets/cs-square-gold-mini.png";
 import SmallBlue from "../assets/cs-square-blue-mini.png";
 import SmallRed  from "../assets/cs-square-red-mini.png";
 
-const Results = ({ isShowing, result, header, tag, money}) => isShowing ? ReactDOM.createPortal(
+const PopUpResults = ({ isShowing, hide, title, message, path, button, showLink, showCancel, showOK}) => isShowing ? ReactDOM.createPortal(
   <React.Fragment>
     <div className="modal-overlay" />
-    <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
-      <div className="modal">
+    <div className="alert-modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
+      <div className="alert-modal">
         <div className="modal-logos">
           <img src={SmallBlue} alt="Card Sharks" />
           <img src={SmallGold} alt="Card Sharks" />
           <img src={SmallRed}  alt="Card Sharks" />
         </div>
         <div className="modal-header">
-        <h1>{header}!</h1>
+        <h1>{title}</h1>
         </div>
         <p>
-        {tag}
+        {message}
         </p>
         <div className="modal-buttons">
-          <Link className="gold-button" to="/">Main Menu</Link>
-          { result && !money ? <Link className="gold-button" to="/money">Money Round</Link> : null}
-          { !result && !money ? <button className="gold-button" onClick={() => window.location.reload(true)}>Try Again</button> : null}
-          { money ? <Link className="gold-button" to="/highscores">High Scores</Link> : null}
+          {showOK ? <button className="blue-button" onClick={hide}>OK</button> : null }
+          {showCancel ? <button className="gold-button" onClick={hide}>Cancel</button> : null }
+          {showLink ? <Link className="red-button" to={path}>{button}</Link> : null }
           <br />
         </div>
       </div>
@@ -34,4 +34,4 @@ const Results = ({ isShowing, result, header, tag, money}) => isShowing ? ReactD
   </React.Fragment>, document.body
 ) : null;
 
-export default Results;
+export default PopUpResults;
