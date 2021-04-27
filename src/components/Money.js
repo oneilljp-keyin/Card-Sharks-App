@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
+import publicIp from "public-ip";
 
 import useResultModal from "./useResultModal";
 import useChoiceModal from "./useChoiceModal";
-import ResultsModal from "./Results";
-import ChoiceModal from "./Choice";
-import CardValue from "./CardValue";
-import AlertModal from "./PopUpAlert";
 import useAlertModal from "./useAlertModal";
+import ResultsModal from "./Results";
+import AlertModal from "./PopUpAlert";
+import ChoiceModal from "./Choice";
+
+import CardValue from "./CardValue";
 
 import '../App.css';
 import { v4 as uuidv4 } from 'uuid'; // then use uuidv4() to insert id
@@ -231,7 +234,7 @@ function Money() {
         setShowResults(false);
       }, 4000);
       if (newBank !== 0) {
-        highScore(playerName, newBank);
+        SaveHighScore(playerName, newBank);
         console.log("Update High Scores");
       }
     }
@@ -282,29 +285,45 @@ function Money() {
   }
   // --------------------------------------------------------------------------------------------- \\
 
-  // stores score in local storage
-  function highScore(name, score) {
-      const scores = JSON.parse(localStorage.getItem("scores"));
-      const newScore = {"name": name, "score": score};
+  function SaveHighScore(name, score) {
+
+    console.log("Step #1", name, " ", score)
+
+    // useEffect(() => {
+    //   sendToServer(name, score);
+    // }, [])
   
-      let newScores = [];
+    const sendToServer = async ( name, score ) => {
   
-      if (scores !== null) {
-        newScores = Array.from(scores);
-      }
-    
-      newScores.push(newScore);
-      newScores.sort((a, b) => b.score - a.score);
+      console.log("Step #2", name, " ", score)
+
+      const d = new Date();
+      var date = (d.getFullYear()) + "-" + 
+                ((d.getMonth()+1)).toString().padStart(2, '0') + "-" +
+                (d.getDate()).toString().padStart(2, '0');
   
-      localStorage.setItem("scores", JSON.stringify(newScores))
-  }
+      let formData = new FormData();
+      formData.append("user_date",  date);
+      formData.append("user_name",  name);
+      formData.append("user_score", score);
+  
+      const response = await axios.post("https://johnny-o.net/card-sharks/high_scores.php", formData, {
+        headers:{'Content-Type': 'application/json'}
+      });
+  
+      console.log(response);
+    }
+
+    sendToServer(name, score);
+  
+  };
 
   function submitScore() {
     setRoundNum(previousValue => previousValue + 1);
     toggleChoice();
     toggleResult();
     setShowResults(false);
-    highScore(playerName, bankTotal);
+    SaveHighScore(playerName, bankTotal);
   }
 
   // -------- Alert Modal ------------------------------------------------------------------------ \\

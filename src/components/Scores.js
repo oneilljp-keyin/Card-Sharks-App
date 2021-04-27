@@ -1,27 +1,49 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from "./Axios";
 import { v4 as uuidv4 } from 'uuid'; // then use uuidv4() to insert random key
 
 function Scores() {
-  let highScores = JSON.parse(localStorage.getItem("scores"));
-  console.log(highScores);
+  const [highScores, setHighScores] = useState([]);
 
-  const displayScores = (() => {
-    if (highScores !== null) {
-      let topTen = highScores.slice(0,10)
-      return (topTen.map(score => 
-        <tr key={uuidv4()}><td>{score.name}</td><td>${score.score.toLocaleString()}</td></tr>)
-      )
-    } else {
-      return (
-        <tr key={uuidv4()}><td colSpan="2">No High Scores Yet<br/>Play the Game to get on the Board</td></tr>
-      )
-    }
-  })
-  
-  
+  useEffect(() => {
+    getHighScores();
+  }, []);
 
-  return (
+  const getHighScores = async () => {
+
+    const response = await axios.get();
+
+    setHighScores(response.data)
+
+    console.log(response);
+    console.log(response.data);
+    console.log(response.headers);
+  }
+
+    const displayScores = (() => {
+      
+      // let displayArray = [];
+
+      // highScores.foreach(user => (
+      //   displayArray.push(<tr key={uuidv4()}><td>{user.name}</td><td>${user.score.toLocaleString()}</td><td>{user.date.slice(0,10)}</td></tr>)
+      // ));
+
+      // return "nope";
+    // if (highScores !== null) {
+    //   return (highScores.map(score => 
+    //     <tr key={uuidv4()}><td>{score.name}</td><td>${score.score.toLocaleString()}</td><td>{score.date.slice(0,10)}</td></tr>)
+    //   )
+    // } else {
+    //   return (
+    //     <tr key={uuidv4()}><td colSpan="2">No High Scores Yet<br/>Play the Game to get on the Board</td></tr>
+    //   )
+    // }
+  })  
+
+      console.log(highScores);
+
+    return (
     <>
       <div className="info-box">
         <h1>High Scores</h1>
@@ -30,10 +52,13 @@ function Scores() {
                 <tr className="scores-header">
                   <th>Name</th>
                   <th>Score</th>
+                  <th>Date</th>
                 </tr>
               </thead>
               <tbody>
-                {displayScores()}
+                {highScores.map(score => 
+                  <tr key={uuidv4()}><td>{score.name}</td><td>${score.score.toLocaleString()}</td><td>{score.date.slice(0,10)}</td></tr>)
+                }
               </tbody>
             </table>
       </div>

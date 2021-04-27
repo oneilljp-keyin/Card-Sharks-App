@@ -154,7 +154,7 @@ function Game() {
     document.querySelector("#right-wrong").style.animation  = resultReveal;
 
     setShowResults(true);
-    if((gameOver === true) || (roundNum === roundLimit)) {
+    if((gameOver === true) || ((roundNum === roundLimit) && rightOrWrong === true)) {
       setContinuDis(true);
     }
 

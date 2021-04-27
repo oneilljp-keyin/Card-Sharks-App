@@ -1,0 +1,64 @@
+<?php
+
+$slash_replace = array("\"" => "&#34;", "'" => "&#39;", "," => "&#44;", "-" => "&#8208;");
+
+$usernames = array();
+$i = 0;
+while ($i < 10) {
+  $usernames[] = "cardshark".$i;
+  $i++;
+}
+$servername = "oneilljp.ipowermysql.com";
+$username   = $usernames[rand(0,9)];
+$password   = "OmegaTau&129";
+$dbname     = "card_sharks";
+
+// Create connection
+$con = mysqli_connect($servername, $username, $password, $dbname);
+
+$method = $_SERVER['REQUEST_METHOD'];
+// $request = explode('/', trim($_SERVER['PATH_INFO'],'/'));
+
+
+if (!$con) {
+  die("Connection failed: " . mysqli_connect_error());
+}
+
+//$id = false;
+switch ($method) {
+    case 'GET':
+      // $id = $_GET['id'];
+      $sql = "SELECT * from high_scores ORDER BY score DESC LIMIT 10"; 
+      break;
+    case 'POST':
+      $date        = $_POST["user_date"];
+      $name        = $_POST["user_name"];
+      $name        = strtr($_POST["user_name"], $slash_replace);
+      $score       = $_POST["user_score"];
+      $ip_address  = $_POST["user_ip_address"];
+      $sql = "INSERT INTO high_scores VALUES ('', '$date', '$name', '$score', '$ip_address')"; 
+      break;
+}
+
+// run SQL statement
+$result = mysqli_query($con,$sql);
+
+// die if SQL statement failed
+if (!$result) {
+  http_response_code(500);
+  die(mysqli_error($con));
+}
+
+if ($method == 'GET') {
+    if (!$id) echo '[';
+    for ($i=0 ; $i<mysqli_num_rows($result) ; $i++) {
+      echo ($i>0?',':'').json_encode(mysqli_fetch_object($result));
+    }
+    if (!$id) echo ']';
+  } elseif ($method == 'POST') {
+    echo json_encode($result);
+  } else {
+    echo mysqli_affected_rows($con);
+  }
+
+$con->close();
