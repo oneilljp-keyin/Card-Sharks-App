@@ -28,7 +28,7 @@ if (!$con) {
 switch ($method) {
     case 'GET':
       // $id = $_GET['id'];
-      $sql = "SELECT * from high_scores ORDER BY score DESC LIMIT 10"; 
+      $sql = "SELECT * from high_scores ORDER BY score DESC LIMIT 20"; 
       break;
     case 'POST':
       $date        = $_POST["user_date"];
@@ -36,7 +36,7 @@ switch ($method) {
       $name        = strtr($_POST["user_name"], $slash_replace);
       $score       = $_POST["user_score"];
       $ip_address  = $_POST["user_ip_address"];
-      $sql = "INSERT INTO high_scores VALUES ('', '$date', '$name', '$score', '$ip_address')"; 
+      $sql = "INSERT INTO high_scores VALUES ('', '$date', '$name', '$score')"; 
       break;
 }
 
@@ -57,6 +57,9 @@ if ($method == 'GET') {
     if (!$id) echo ']';
   } elseif ($method == 'POST') {
     echo json_encode($result);
+    $msg = $name." as posted a score of $".$score;
+    $msg = wordwrap($msg,70);
+    mail("7096313944@txt.bell.ca","New Card Sharks Score",$msg);
   } else {
     echo mysqli_affected_rows($con);
   }

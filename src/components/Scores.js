@@ -16,34 +16,9 @@ function Scores() {
 
     setHighScores(response.data)
 
-    console.log(response);
-    console.log(response.data);
-    console.log(response.headers);
   }
 
-    const displayScores = (() => {
-      
-      // let displayArray = [];
-
-      // highScores.foreach(user => (
-      //   displayArray.push(<tr key={uuidv4()}><td>{user.name}</td><td>${user.score.toLocaleString()}</td><td>{user.date.slice(0,10)}</td></tr>)
-      // ));
-
-      // return "nope";
-    // if (highScores !== null) {
-    //   return (highScores.map(score => 
-    //     <tr key={uuidv4()}><td>{score.name}</td><td>${score.score.toLocaleString()}</td><td>{score.date.slice(0,10)}</td></tr>)
-    //   )
-    // } else {
-    //   return (
-    //     <tr key={uuidv4()}><td colSpan="2">No High Scores Yet<br/>Play the Game to get on the Board</td></tr>
-    //   )
-    // }
-  })  
-
-      console.log(highScores);
-
-    return (
+  return (
     <>
       <div className="info-box">
         <h1>High Scores</h1>
@@ -57,7 +32,7 @@ function Scores() {
               </thead>
               <tbody>
                 {highScores.map(score => 
-                  <tr key={uuidv4()}><td>{score.name}</td><td>${score.score.toLocaleString()}</td><td>{score.date.slice(0,10)}</td></tr>)
+                  <tr key={uuidv4()}><td>{score.name.replace(/&#39;/g, "'").replace(/&#8208;/g, "-")}</td><td>${score.score.toLocaleString()}</td><td>{score.date.slice(0,10)}</td></tr>)
                 }
               </tbody>
             </table>
