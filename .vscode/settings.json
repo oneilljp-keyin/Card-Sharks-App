@@ -1,0 +1,27 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "Dooly's NL",
+      "database": "doolysnl",
+      "username": "postgres",
+      "password": "password1234"
+    },
+    {
+      "mysqlOptions": {
+        "authProtocol": "default"
+      },
+      "previewLimit": 50,
+      "server": "192.168.2.45",
+      "port": 3306,
+      "driver": "MySQL",
+      "name": "Wrestling Database",
+      "database": "wrestling_db",
+      "username": "johnny_o_neill",
+      "password": "OmegaTau-129"
+    }
+  ]
+}

@@ -15,6 +15,7 @@ function App() {
         <Header />
         <Switch>
           <Route path="/"   exact   component={MainMenu} />
+          <Route path="/index.html" component={MainMenu} />
           <Route path="/game"       component={Game} />
           <Route path="/money"      component={Money} />
           <Route path="/highscores" component={HighScores} />

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import publicIp from "public-ip";
 
 import useResultModal from "./useResultModal";
 import useChoiceModal from "./useChoiceModal";
@@ -323,7 +322,9 @@ function Money() {
     toggleChoice();
     toggleResult();
     setShowResults(false);
-    SaveHighScore(playerName, bankTotal);
+    if (bankTotal > 0) {
+      SaveHighScore(playerName, bankTotal);
+    }
   }
 
   // -------- Alert Modal ------------------------------------------------------------------------ \\
